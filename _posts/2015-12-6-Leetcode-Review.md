@@ -1,0 +1,530 @@
+---
+title:  Leetcode Notes (Ongoing)
+categories:
+  - Blog
+tags:
+  - CODE_DEBUG_LIFE
+---
+
+Previous notes on leetcode.
+
+## Easy
+
+6 . ZigZag Conversion: It is not very hard, just have to figure out how the math works and get all the indices right.
+
+7 . Reverse Integer: I would use string to reverse it but people seem to just use a loop. Either way, it shouldn't be too much a problem. Should consider what happens when there are bunch of 0's in the end of the number (e.g. 100000).
+
+8 . String to Integer: **I skipped this one, I think.** Too much work to figure out if the string is legal and what to do with different cases.
+
+9 . Palindrome Number: Check from both sides to meet in the middle. See if anything do not match. Both log10() and while loop can find the highest digit.
+
+13 . Roman to Integer: I didn't do this, because I don't know how to read Roman. Too confusing.
+
+14 . Longest Common Prefix: Straightforward - iterate through the strings and check when they don't match.
+
+19 . Remove Nth Node from End of List: Keep two pointers of distance N apart and remove it when one reaches the end.
+
+20 . Valid Parentheses:  ~~Use a vector to keep track of previous parentheses.~~ Use a stack to keep track of previous parentheses. If the new one is left, add to it; otherwise, test if it is a valid choice. If true, ~~pop_back()~~ pop(), or return false otherwise.
+
+21 . Merge Two Sorted Lists: not too bad, just compare and link to the new smallest node. When one list is exhausted, perform extra loops to exhaust the other. Return the new list.
+
+26 . Remove Duplicates from Sorted Array: just keep track of how many are valid in the new list when going through the list.  Should be O(n) time and O(1) space.
+
+27 . Remove Element: One way is to loops from the back and erase the element. But the method in 26 can be used too.
+
+28 . Implement strStr(): Brute force will work. Use KMP algorithm. Build a table using partial matching and use them to skip through some text.
+
+36 . Valid Sudoku: Well, just check, right?
+
+38 . Count and say: It is just a matter of attention to details.
+
+58 . Length of Last Word: Use l and r iterators and return (r-l) when r reaches the end. An interesting solution online uses s.find_last_not_of(' ') to get the index.
+
+```cpp
+int lengthOfLastWord(string s) {
+    int index = s.find_last_not_of(' ');
+    return index == -1 ? 0 : index - s.find_last_of(' ', index);
+}
+```
+
+66 . Plus One: I compared the sizes of two arrays and passed them in order to another function, so that I don't have to worry about which one is larger. This way I can do everything in place. Use insert once to add an extra digit in the beginning if necessary.
+
+67 . Add Binary: Same, nothing fancy.
+
+70 . Climbing Stairs: Ha, first DP problem. Easy enough to see that a[i] = a[i-1] + a[i-2] where a[1] = 1 and a[2] = 2;
+
+83 . Remove Duplicates from Sorted List: Just go through and remove on the way. Use while() to remove all the cases.
+
+88 . Merge Sorted Array: Similar to margin two lists. Since we don't have to worry about the memory, there is nothing here.
+
+100 . Same Tree: Have to check everything (branch and values). I guess it will be good to ask what it means to be identical in interviews.
+
+101 . Symmetric Tree: Depth first search. Compare everything till the end. Notice that we have to pass p->left and q->right for symmetry and vice versa.
+
+102 . Binary Tree Level Order Traversal: DFS will work. Just keep track of level and then add the value. I'm thinking about BFS.
+
+104 . Maximum Depth of Binary Tree: DFS and get the maximum.
+
+107 . Binary Tree Level Order Traversal II: The same as above, I'll just use a reverse and return it.
+
+110 . Balance Binary Tree: A DFS recursion should work. Have to keep track of the depth.
+
+111 . Minimum Depth of Binary Tree: ~~Isn't it the same as maximum?~~ Use BFS.
+
+112 . Path Sum: DFS. Get to the leaf and see if it is correct.
+
+118 . Pascal's Triangle: Add a 1 in the end and update a[i] = a[i]+a[i-1] (0 < i < n). Notice that a[i-1] will change every iteration, so one has to keep a temp variable.
+
+119 . Pascal's Triangle: It is the same.
+
+125 . Valid Palindrome: Use l and r to iterate through the string. Skip illegal characters.
+
+160 . Intersection of Two Linked Lists: Very interesting problem.
+
+```cpp
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    ListNode *hA = headA, *hB = headB;
+    while (hA && hB) {
+        if (hA == hB) return hA;
+        hA = hA->next;
+        hB = hB->next;
+        if (!hA && !hB) return NULL;
+        if (!hA) hA = headB;
+        if (!hB) hB = headA;
+    }
+    return NULL;
+}
+```
+
+Suppose
+
+p ----L1------------C-------
+
+q        --L2--|
+
+It takes L1+L2+C for both p and q to reach the intersection point. This is not intuitive. Knowing this, it is easy to develop an algorithm for it.
+
+165 . Compare Version Numbers: Parsing the string is very important. It is mostly details. Also one can use l, r to get where the numbers are and use stoi() to compare number.
+
+168 . Excel Sheet Column Title: Nothing hard, it is just like converting to binary number. Use / and % to find the digit. Be careful with the starting point of char ('A').
+
+169 . Majority Element: I did a sort and returned the middle element. An O(n) alternative is to go through the array and keep a counter. If the same number, counter++, otherwise counter--. When counter<0, switch the number for a[i] and restart counter. Eventually, the majority will be the number because everything else will not survive till the end.
+
+171 . Excel Sheet Column Number: Similar as above and easier to solve because the conversion is just multiplying 26.
+
+172 . Factorial Trailing Zeroes: Use recursive method to find how many 5's are there in the factor and that should corresponds to how many fives there are. Should run O(log(n)).
+
+189 . Rotate Array: I think I used erase and insert, since it doesn't get faster than that. Have to be clear what it means to "rotate" the array.
+
+190 . Reverse Bits:  I don't really remember this question but I guess there is no better way than to do it bit-wise. Just the straightforward way.
+
+191 . Number of 1 Bits: OK, I guess the same as above? Just check n&1 and shift the bit.
+
+198 . House Robber: Another DP problem. Adding the house one by one and keep the maximum of sum[i] = a[i]+sum[i-2] or sum[i] = sum[i-1].
+
+202 . Happy Number: Make sure to use a map so that the endless cycle will be detected.
+
+203 . Remove Linked List Elements: Nothing fancy, just do it.
+
+204 . Count Primes: I didn't really do it. The Sieve of Eratosthenes is the way to go, apparently. Make a bool array/vector and do it. [I remember doing it using LabVIEW when I was bored]
+
+205 . Isomorphic Strings: Use maps. Two maps to record both ways.
+
+206 . Reverse Linked List: It is not too hard, do it in place.
+
+208 . Implement Trie (Prefix Tree): A trie is used to solve prefix/string problems with close to O(1) efficiency. The idea is to explore the fact that there are only 26 characters in English alphabet (considering only lower cases) and a tree with large width but small height will be an efficient solution to store and search for words [in term of time, not space]. Each node/vertex in the tree should have children (pointers to next nodes/vertices) and indicator whether it is a word or not [considering "home" and "homework", a proper indicator should exist to distinguish the two cases].
+
+Currently, I have copied&pasted an implementation that works, using unordered_map. But this solution is not efficient in the sense that 26 letters should be sufficient to store all the possible pointers (may have to use to_lower() function). ~~<strong>[For some reason, my implementation is still not fast] </strong>~~ OK, if I use array instead of vector, it speeds up and get me to the top percentile. Nice. Use
+`memset ( void * ptr, int value, size_t num );`
+to initialize the null pointers.
+
+217 . Contains Duplicate: ~~Sort?~~ Hashset? (unordered_set<int>)
+
+219 . Contains Duplicate II: Use a map to record the last occurred location. If it is too far, update it, otherwise return true.
+
+223 . Rectangle Area: Nothing fancy, have to figure out the relative location and subtract the overlapped area. I used a vector to do the operator and sort for me.
+
+225 . Implement Stack Using Queues: Not bad after having done it once. Just pop everything out and back in when inserting a new element.
+
+226 . Invert Binary Tree: Just recursion?
+
+228 . Summary Ranges: Just count and insert when there is a discontinuity. Make sure a singleton will be accounted for.
+
+231 . Power of Two: Bit shifting till its last digit hits 1 and check if there are more numbers in its binary. Power of two should be 100...0
+
+232 . Implement Queue using Stacks: same story.
+
+234 . Palindrome Linked List: Interesting question. Use two runner pointers and let one advance two steps a time. Reverse the link stepped by the other pointer. Then start from the middle to check if the list is palindrome. Odd or even number will matter but not hard to be dealt with.
+
+235 . Lowest Common Ancestor of a Binary Search Tree: Similar to find the lowest common ancestor of a search tree, but with more criteria to stop the search early. Use a counter to keep track of how many of the same offspring has been encountered, return -1 when the lca is found.
+
+237 . Delete Node in a Linked List: Get there and delete it.
+
+242 . Valid Anagram: sort, compare. Alternatively, use an array to keep track of # of occurrence of a letter. In the end, compare the counter to see if they match.
+
+257 . Binary Tree Paths: Basically DFS and keep track of the current numbers.
+
+258 . Add digits: There is a mathematical formula for it. Basically write down (or think about) the first 20 numbers and there should be a pattern.
+
+263 . Ugly Number: Divide all the factors and see what remains.
+
+278 . First Bad Version: Just binary search?
+
+283 . Move Zeros: Keep a counter and shift every non-zero entries. Then fill the rest with 0's.
+
+290 . Word Pattern: Basically the isomorphism again. Use two maps.
+
+292 . Nim Game: Whoever gets a number that is a multiple of 4 will lose. I think the rest of algorithm depends on it. I didn't look too much beyond getting a solution.
+
+299 . Bulls and Cows. Keep a counter using map in the background for everything that has passed. Actually two counters for the secret and guess.
+
+303 . Range Sum Query - Immutable: Get partial sum first using DP. Then it is just a matter of subtracting two numbers in an array.
+
+326 . Power of Three: log().
+
+328 . Odd Even Linked List: Use two separate linked list to reorganize even and odd numbers, then concatenate them.
+
+<hr />
+## Medium:
+
+1 . Two Sum: go through the array and use `map<int, int>` to store the (value, index) pair in a map. myMap[value] = index. Then use myMap.find(value) to see if a match is found. [ I think unordered_map will work too ]
+
+2 . Add Two Numbers: Nothing difficult, just go through the list and then keep adding digits. Add a new node if necessary.
+
+3 . Longest Substring without repeating characters: my guess is to keep track of the last occurrence and keep a counter/maximum. [I think this one is from a while back]
+
+5 . Longest Palindromic Substring: A O(n^2) solution is kinda obvious. Look up **Kanacher's algorithm**, it seems to be O(n).
+
+11 . Container With Most Water: Set two pointers at both ends of the containers and move towards each other. Interesting problem, **review** when you have the time.
+
+15 . 3 Sum: a slight modification of the 2 sum should do well. Almost the same as 2 sum but have to search from both sides to keep the cost manageable.
+
+16 . 3 Sum closest: use min to keep track of the closest value. Search from both sides to reduce computational cost.
+
+17 . Letter Combinations of a Phone Number: not hard, just have to list all the possibilities and then add them all to the existing combo.
+
+18 . 4 Sum: Nothing fancy, but have to work out the details. Sort the list and search from both ends. [**Sorting the list!**]
+
+22 . Generate Parentheses: my first introduction to recursion, I believe. One can write much more elegantly using recursion. Keep track of the number of left & right parentheses and add more. When there are N of both, push_back to the answer.
+
+24 . Swap Nodes in Pairs: Nothing interesting as far as the algorithm is concerned. Syntax for creating a dummy node.
+```cpp
+ListNode dummy(0);
+ListNode* last = & dummy;
+```
+
+31 . Next Permutation: Hmmm.... idk, `next_permutation()` ? This works just fine.... OK, it is not too bad. First, reverse iterate through the vector, call it l. Then reverse iterate through the vector again call it r (r < l). When num[l] < num[r], it is time to swap. Use `rotate(iterator, iterator, iterator)` to put num[r] before nums[l], then do a sort from l+1 to the end.
+
+125634 -> 1[2]563[4] -> 1[4][2]563 -> 1[4][2356] -> done
+
+33 . Search in Rotated Sorted Array: Binary search with smarter criteria will work. Be extra careful with the indices and test it on various edge cases. Also, spare the use of vec.front() and assign it to a variable (as in this case, it improved the speed a lot).
+
+```cpp
+class Solution {
+public:
+    int search(vector<int> nums, int target) {
+        int l = 0, r = nums.size();
+        int front = nums.front();
+        while(l < r){
+            int m = (l+r)/2;
+            if(nums[m]<front & target<front){
+               l = m+1;
+               continue;
+            }
+            if(nums[m]<front &amp; target >= front){
+                r = m;
+                continue;
+            }
+            if(nums[m]>target) r = m;
+            else if(nums[m]<target) l=m+1;
+            else return m;
+        }
+        return -1;
+    }
+};
+```
+
+34 . Search for a Range: I think a binary search to locate the value and then two while loops to get the upper and lower bound. But this is exactly what the `upper_bound()` and `lower_bound()` do for the vector class.
+
+35 . Search Insert Position: This is just binary search, with a little bit tweak. So be careful with how the indices work and which result you'll return in the end.
+
+39 . Combination Sum: recursion should work, add one number in the usable set at a time and see if anything can be done. Be smart about when to stop the loops.
+
+40 . Combination Sum II: this is even easier, sort the list and do the same. Complexity should be way lower.
+
+46 . Permutations: well, there is a function called `next_permutation();`
+
+47 . Permutations II: again, the same. Make sure to use unique to eliminate duplicates.
+
+48 . Rotate Image: interesting question. Swap four corners in order and iterate through one side. Move inward one step and repeat till there is nothing to swap. Indices.
+
+49 . Group Anagrams: sort -> compare -> group. Or maybe hash the string to check.
+
+50 . Pow(x, n): I think it is easy to get overflow or take too long. Be smart with which datatype to use (long double or something) and when to quit (x^(n-k) < epsilon, or x = 1, just quit).
+
+53 . Maximum subarray: should be a DP problem. Add one number at a time and check if there is a new maximum. Keep two pointers l and r to see the range.
+
+54 . Spiral Matrix: Index game.
+
+55 . Jump game: keep a variable jumpLimit to keep track of how far you can get with given set. Then return false if your current position exceeds that number. [An ambiguity occurs when the meaning of number is not clear - it is the maximum jump distance, not necessary how far one has to jump. Must understand this]
+
+73 . Set Matrix Zeroes: I think the difficulty arises in doing it in place. The key is to store zeros in the first column where at least one 0 is encountered. Loop through the rows and then do it for columns.
+
+78 . Subsets: recursion. A sort in the end if necessary to match the answers.
+
+90 . Subsets II: recursion + unique();
+
+91 . Decode Ways: just iterate through the letters and make choices when special characters are encountered ('1', '2'). Make sure to check if the input is valid (e.g. "01" is useless).
+
+103 . Binary Tree Zigzag Level Order Traversal: a basic BFS problem. Instead of just going through each level, distinguish even/odd level and traverse differently. Also, use a stack to keep the data organized inside the level (still using queue to do BFS, stack helps the printing).
+
+136 . Single Number: sort. This is downvoted to death (lol). A smart bit manipulation using ^ operator will run O(n). Seriously, I don't see why O(log(n)) is so hated - the situation is quite coined already.
+
+137 . Single Number II: should get inspiration from 136. I don't recall anything beyond a sort. **Review** this.
+
+141 . Linked List Cycle: two runner pointers. Awesome solution.
+
+142 . Linked List Cycle: I figured out the length and ran again to find the starting point. An elegant solution resorts to mathematics again.
+
+|            C             |
+
+-----L1-------------------------
+
+L1+N1C = 2L
+
+L1+N2C = L
+
+==> N3C = L
+
+==> N3C+L1 = L+L1
+
+From the last equation we can see that if we restart a new pointer from the beginning. By the time it reaches the loop start, the other pointer will finish N3 circles and reach the loop start. Therefore, their meeting point is the start. Not intuitive but so awesome when it is pointed out like this.
+
+199 . Binary Tree Right Side View: I don't remember well, but should be dfs to get all the values to the rightmost. Have to go through every node, don't stop at the rightmost branch, that is not the whole story!
+
+200 . Number of islands: Not very hard, put the adjacent points to '0' when encountered. Easy as that.
+
+201 . Bitwise AND of Number Range: Find the upper and lower limit of your numbers in term of binary representations. Then everything in between will be 1 since it is AND. I don't remember the details.
+
+207 . Course Schedule: a typical toposort problem. Find if there is a cycle in the graph. In this case, it is easier since all we care is whether a cycle exists. Use DFS with colored nodes to to detect such cycle. Basically, a node starts with 0 (white), when one exits from it, change it to 1 (gray). If the search encounters another gray, a cycle exists. Otherwise, go back and change it to white and start from last level. When there is no exit left, change it to black, indicating its status.
+
+215 . Kth Largest Element in an Array: Use a priority_queue to keep K largest elements in order. Swap the top if necessary and then return the top after going through the array once.
+
+230 . Kth Smallest Element in a BST: The property of BST dictates that all the branches to the left of the node have values smaller than that of the node (similarly for the right). So do a depth first search and keep track of how many nodes there are to the left of the current one.
+
+236 . Lowest Common Ancestor of a Binary Tree: the same as 235 except without the early stopping criteria.
+
+238 . Product of Array Except Self: keep two arrays that keep track of the partial product of all elements before/after it. Then for each answer it only takes prod2[i-1] and prod2[i+1] two variables to compute. O(n) complexity. Be careful with the indices, I don't think the above indices will work, but it all depends on how the data is stored.
+
+240 . Search a 2D Matrix II: Pretty awesome solution. Start from the upper right corner and proceed to the lower left. The order criteria is unique will lead to the answer in O(N+M).
+
+266 . Single Number III: Eh... whatever, I did sort.
+
+264 . Ugly Number II: similar to ugly number question. Keep track of what the next candidate will be and then add it to the sequence. [I think there are more things to pay attention to, but you can figure it out along the way. Be smart or it will be hard to pass the time test]
+
+274 . H-Index: Use priority_queue to keep track of citations that are greater than the current H-index, pop elements that get too small as we add elements.
+
+274 . H-Index II: binary search. Be careful with the indices.
+
+279 . Perfect Squares: There is a mathematical theory behind it. I didn't bother too much. [4 square numbers will make up any number, I think]
+
+289 . Game of life: be smart with how you update and what date to keep track of. Should be able to do it with a little extra memory. Not super hard in the end of the day.
+
+313 . Super Ugly Number: Same approach as ugly number.
+
+319 . Bulb Switcher: I think only square number gets left behind? Check it again but it is more mathematical than it appears and the solution can be O(1)...(maybe).
+
+322 . Coin Change: recursion to get all possibilities. Stop wisely to improve speed. Apparently, recursion is not fast enough. The other solution is to use DP. Keep track of the minimum number of amount = i, then a[i] = a[i-coins[j]]+1. An interesting solution. [NVM, recursion works (even better than DP), you just gotta be smart about it]. [Using one of the online answers, the recursion method can be really fast (without changing my original algorithm). <strong>Passing by iterator</strong> seems to help a lot].
+
+324 . Wiggle Sort II:<strong> I don't remember.</strong>
+
+329 . Longest Increasing Path in a Matrix: pretty much DFS and DP. Make sure to store how far each entry can go and the problem runs O(MN).
+
+332 . Reconstruct Itinerary: [why the heck would this be listed under medium?] A few things to consider:
+    1. Use multimap/multiset to keep track of the start/destination pairs. It is worth it reorganizing the data using more efficient data structure (it is only o(n) after all).
+    2. Note that multimap keeps an order for the elements(pairs) inserted. Ordered by insertion time is guaranteed for C++11 (I haven't checked myself).</li>
+	<li>A function for non-strict order can be added for the multimap, but it only works for keys (i.e., sorted by key, rather than values. The values are still sorted by insertion time.)
+    3. It is not worth it using multimap. Use an unordered_map for keys and a multiset for values. Since multiset keeps an order on its elements, the above problem is solved.</li>
+	4. For example, we can use unordered_map<string, multiset<string>> for the (start,destination) pairs, where the start will be the keys.
+    5. Once we figure out the data structure, the problem becomes finding an Eulerian path using Hierholzer's algorithm. The algorithm is not hard to understand but takes some work to implement right.
+        Use recursion to add destination to the travel itinerary according to lexicographical order.
+
+For future reference:
+
+```cpp
+class Solution{
+public:
+    unordered_map<string, multiset<string>> plan;
+    vector<string> itinerary = {};
+    vector<string> findItinerary(vector<pair<string, string>> tickets) {
+        for(auto& ticket : tickets)
+            plan[ticket.first].insert(ticket.second);
+        travel("JFK");
+        return vector<string>(itinerary.rbegin(), itinerary.rend());
+    }
+    void travel(string start){
+        while(plan[start].size() > 0){
+            string dst = *plan[start].begin();
+            plan[start].erase(plan[start].begin());
+            travel(dst);
+        }
+        itinerary.push_back(start);
+    }
+};
+```
+
+334 . Increasing Triplet Subsequence: Keep track of the current minimum. If a number is greater than minimum, put that into a candidate array. If a number is greater than any in the candidate array, it forms a triplet and therefore returns true. Otherwise, keeps going though the nums to test it out. o(n).
+（To be continued)
+
+<hr />
+
+## Hard:
+
+4 . Median of Two Sorted Arrays: I remember struggling with this one, but it's just about keeping track of where the median candidates are in the two arrays and eliminate the rest. **Review**.
+
+23 . Merge k Sorted Lists: Nothing hard here, just keep track of which one to get. I think this is where the priority_queue comes handy.
+
+25 . Reverse Nodes in k-Group: Nothing hard, use a dummy head. Kinda annoying at certain points.
+
+30 . Substring with Concatenation of All Words: This is a challenging one. The basic idea is to go through each letter in the words and compare the substring with dictionary. An unordered_map is best chosen for the data structure of dictionary (to record the frequency of occurrence for each word). The rest is easy.
+
+Problem is that if we check the substring every time, the algorithm soon becomes expensive as reading the substring causes an unnecessary extra work. To alleviate this, we can load the entire substring and update it every time we move one letter forward. This is the idea for optimization.
+
+Another idea (that I stole) is to use hash to compare the string with dictionary. A simple hash that sums up all the letter in each position will do efficiently in this case. (e.g ["abc", "def"] -> ['a'+'d', 'b'+'e', 'c'+'f']). This creates a signature for the given dictionary and each substring. Our job becomes updating and comparing the signature of dictionary (const) and substring.
+
+An exact implementation has more details to it and this one (that I shamelessly stole) has nice practice and attention to details. Good performance as a result:
+
+```cpp
+class Solution {
+public:
+    typedef vector<int> Signature; //Use this to store hash keys
+    vector<int> findSubstring(string s, vector<string>& words) {
+        // Problem setup
+        if(!words.size() | !s.size()) return vector<int> {};
+        n_ = words[0].size();
+        N_ = n_ * words.size();
+        if(s.size() < N_) return vector<int> {};
+        vector<int> indices;
+
+        // Initializing dict
+        dict_.clear();
+        for(auto&amp; w : words) dict_[w]++;
+
+        // Initialize signature array using hash function
+        sig_ = gen_signature(); // Signature hash array
+
+        // Initialize signature array for substr and test the first one
+        decltype(sig_) lsig(n_, 0); //Signature for substr that starts from 0
+        for (int i = 0; i &lt; N_; i++)
+            lsig[i%n_] += s[i]; // basically just generate signature substr
+        if (equal(lsig, 0) && check(s, 0))
+            indices.push_back(0); // Add to result if the substr is true
+
+         // Test the rest
+         for (int i = N_; i &lt; s.size(); i++) {
+            lsig[(i)%n_] += -s[i-N_] + s[i]; // Update, nice thing is that only one character needs updating
+            if (equal(lsig, i+1) && check(s, i+1-N_))
+                i+=n_>2?n_-1:0;
+        }
+        return indices;
+    }
+protected:
+    bool equal(const Signature& sig, int offset){
+        for(int i = 0; i < n_; i++){
+            if(sig[(i+offset)%n_] != sig_[i])
+                return false;
+        }
+        return true;
+    }
+
+    bool check(const string& str, int offset){
+        map<string, int> freq;
+        for(int i = offset; i < offset + N_; i+=n_){
+            string s = str.substr(i, n_);
+            freq[s]++;
+        }
+        auto it1 = freq.begin(), it2 = dict_.begin();
+        while(it1 != freq.end() && it2 != dict_.end()){
+            if(it1->first==it2->first && it1->second==it2->second){
+                it1++, it2++;
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    Signature gen_signature(){
+        Signature sig(n_, 0);
+        for(auto& pair : dict_){
+            for(int i = 0; i < n_; i++)
+                sig[i] += pair.first[i] * pair.second; // basically, s1[i]+s2[i]+...+sk[i], i < n_
+        }
+        return sig;
+    }
+
+    int n_, N_; //n_ - word length, N_ - total words length
+    map&lt;string, int&gt; dict_;
+    Signature sig_;
+};
+```
+
+32 . Longest Valid Parentheses: Use a stack to keep track of the length of continuous parentheses. The length is breakable by the occurrence of ')' when there is no '(' before it, as well as '(' when there is no matching ')' after it. The stack is to solve the latter problem and we may not connect all the length.
+
+Lesson here: do not use data structure just because it looks like the right thing. Think about why and how to use them to maximum. In this case, use stack to keep track of '(' before the problem is kinda silly, because you won't have anything else in the stack. Instead, you can use the stack to keep track of continuous length of "()" pairs, each of them will present a '(' anyway.
+
+41 . First Missing Positive: sort and find.
+
+42 . Trapping Rain Water: use l and r to go through the containers. Be careful at the right end, things get messy. It is easier to stop there and do once backwards.
+
+56 . Merge Intervals: Understand the criteria to merge and write a sub function to merge. A lot of details.
+
+57 . Insert Intervals: Similar to 56, must understand the criteria to merge and go through the current intervals to merge. Use a sub function to do the dirty work and keep the code clean.
+
+239 . Sliding Window Maximum: I don't remember now, double linked list? I think one answer suggested using deque<int>; but **review** this when time permits.
+
+287 . Find the Duplicate Number: intuitively, use a map or array to keep track of existing numbers. To get O(1) space, use the fancy runner method. Because the indices are between 1-n, use a[a[i]] to get the next number. This somewhat forms a list and there will be a loop in it (because of the duplicate). The question then becomes finding the cycle start in the linked list. Pretty elegant solution.
+
+327 . Count of Range Sum: I remember nothing.... **review** this.
+
+<hr />
+
+### Some useful syntax
+
+`map<int, int>`
+
+`map[key] = value;`
+
+`map.find() != map.end()`
+
+`unordered_set<int>`
+
+`unordered_set.find() != unordered_set.end();`
+
+`unordered_set.insert;`
+
+`vector.front(); // return the first element`
+
+`vector.end(); // return the last element`
+
+`std::sort(vec.begin(), vec.end()); // sort the vector`
+
+`vec.erase(uniquer(vec.begin(), vec.end()), vec.end()); // get rid of duplicates</span>`
+
+`std::fill(vec.begin()+i, vec.begin()+j, 0); // basically a memset for vector`
+
+`for(int i : indices){} // nice way to enumerate through a set</span>`
+
+`struct cmpNode {</span>`
+
+`inline bool operator () (ListNode *a, ListNode *b)`
+
+`return a->val > b->val;`
+
+`typedef priority_queue<ListNode*, vector<ListNode>, cmpNod > pq_ListNode_t;`
+
+```
+do {
+    ans.push_back(nums);
+}while(std::next_permutation(nums.begin(),nums.end()));
+```
