@@ -11,7 +11,7 @@ title                    : "Bob"
 title_separator          : "-"
 name                     : "Bob"
 description              : "Not sure what this will become."
-url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : jtcdbob.github.io# the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 gh_repo                  :
 teaser                   : # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
@@ -124,6 +124,23 @@ keep_files:
 encoding: "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      comments: true
+      share: true
+      related: true
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
 
 # Conversion
 markdown: kramdown
@@ -149,7 +166,7 @@ kramdown:
 permalink: /:categories/:title/
 paginate: 5 # amount of posts to show
 paginate_path: /page:num/
-timezone: # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: America/New_York # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 
 # Plugins
