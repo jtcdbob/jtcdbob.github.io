@@ -3,7 +3,5 @@
 #   - title: "Quick-Start Guide"
 #     url: https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/
 main:
-   - title: "Projects"
-     children:
-        - title: "One Month with Triangle"
-          url: /projects/triangle
+   - title: "PhotoProject"
+      url: /projects/triangle
