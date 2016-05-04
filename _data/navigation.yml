@@ -3,5 +3,5 @@
 #   - title: "Quick-Start Guide"
 #     url: https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/
 main:
-   - title: "PhotoProject"
-      url: /projects/triangle
+  - title: "PhotoProject"
+    url: /projects/triangle
