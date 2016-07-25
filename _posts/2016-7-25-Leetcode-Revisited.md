@@ -9,7 +9,9 @@ use_math: false
 ---
 
 ##### 344.Reverse String
+
 Call library function.
+
 ```cpp
 string reverseString(string s) {
     reverse(s.begin(), s.end());
@@ -18,7 +20,9 @@ string reverseString(string s) {
 ```
 
 ##### 292.Nim Game
+
 Whoever gets 4 for the other part will win.
+
 ```cpp
 bool canWinNim(int n) {
     return n%4;
@@ -26,6 +30,7 @@ bool canWinNim(int n) {
 ```
 
 ##### 371. Sum of Two Integers
+
 Use bit operation. This is a smart way to do it. (Whatever.)
 
 ```cpp
@@ -41,7 +46,9 @@ int getSum(int a, int b) {
 ```
 
 ##### 258. Add Digits
+
 Find a pattern that loops from 1 to 9.
+
 ```cpp
 int addDigits(int num) {
     if (!num) return 0;
@@ -50,7 +57,9 @@ int addDigits(int num) {
 ```
 
 ##### 104. Maximum Depth of Binary Tree
+
 Use recursion to get the maximum depth (DFS will do just fine).
+
 ```cpp
 int maxDepth(TreeNode* root) {
     if (root == NULL) return 0;
@@ -59,7 +68,9 @@ int maxDepth(TreeNode* root) {
 ```
 
 ##### 226. Invert Binary Tree
+
 Recursion, swap with a tmp variable, DFS.
+
 ```cpp
 TreeNode* invertTree(TreeNode* root) {
     if (root != NULL) {
@@ -74,7 +85,9 @@ TreeNode* invertTree(TreeNode* root) {
 ```
 
 ##### 283. Move Zeroes
+
 Use a counter to keep track of the non-zero elements in the array and replace them in place.
+
 ```cpp
 void moveZeroes(vector<int>& nums) {
     int n = 0;
@@ -90,7 +103,9 @@ void moveZeroes(vector<int>& nums) {
 ```
 
 ##### 349. Intersection of Two Arrays
+
 Use a hash table to keep track of nums in nums1 and compare it with nums2.
+
 ```cpp
 vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
     unordered_set<int> dictForNums1;
@@ -109,7 +124,9 @@ vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
 ```
 
 ##### 237. Delete Node in a Linked List
+
 Replace the current value with the next value and link it to next next one. Consider edge cases.
+
 ```cpp
 void deleteNode(ListNode* node) {
     if (node) {
@@ -124,7 +141,9 @@ void deleteNode(ListNode* node) {
 ```
 
 ##### 100. Same Tree
+
 Compare node value, then recursively compare left and right nodes.
+
 ```cpp
 bool isSameTree(TreeNode* p, TreeNode* q) {
     if ((p!=NULL) ^ (q!=NULL)) return false;
