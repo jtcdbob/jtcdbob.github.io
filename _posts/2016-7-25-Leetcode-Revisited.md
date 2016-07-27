@@ -8,6 +8,8 @@ tags:
 use_math: false
 ---
 
+## Easy
+
 ##### 344.Reverse String
 
 Call library function.
@@ -374,4 +376,50 @@ int climbStairs(int n) {
     }
     return series.back();
 }
+```
+
+
+
+## Hard
+
+##### 146. LRU Cache
+Use a hash map and doubly linked list to implement the problem. Possible optimization: implement a more light-weight singly linked list to store the order.
+
+```cpp
+class LRUCache{
+private:
+    int cap;
+    int size;
+    list<int> keyOrderList;
+    unordered_map<int, pair<list<int>::iterator, int>> cache;
+public:
+    LRUCache(int capacity) {
+        cap = capacity;
+        size = 0;
+    }
+
+    int get(int key) {
+        if(cache.find(key) == cache.end()) return -1;
+        pair<list<int>::iterator, int> valuePair = cache[key];
+        keyOrderList.erase(valuePair.first);
+        keyOrderList.push_front(key);
+        cache[key].first = keyOrderList.begin();
+        return valuePair.second;
+    }
+
+    void set(int key, int value) {
+        if(get(key) != -1) {
+            cache[key].second = value;
+        } else {
+            if(size >= cap) {
+                cache.erase(keyOrderList.back());
+                keyOrderList.pop_back();
+                size--;
+            }
+            keyOrderList.push_front(key);
+            cache[key] = make_pair(keyOrderList.begin(), value);
+            size++;
+        }
+    }
+};
 ```
