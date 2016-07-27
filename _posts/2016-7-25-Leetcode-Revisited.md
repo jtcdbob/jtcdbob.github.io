@@ -154,3 +154,224 @@ bool isSameTree(TreeNode* p, TreeNode* q) {
     return true;
 }
 ```
+
+##### 171. Excel Sheet Column Number
+Easy number conversion. Base = 26.
+
+```cpp
+int titleToNumber(string s) {
+    int sum = 0;
+    int N = s.size() - 1;
+    for (int i = N; i > -1; i--) {
+        sum += (s[i] - 'A' + 1) * pow(26, N-i);
+    }
+    return sum;
+}
+```
+
+##### 242. Valid Anagram
+Use an array of 26 to count the occurance of letters in each word.
+
+```cpp
+bool isAnagram(string s, string t) {
+    if (s.size() - t.size()) return false;
+    vector<int> myDict(26, 0);
+    for (int i = 0; i < s.size(); i++) {
+        myDict[s[i]-'a']++;
+        myDict[t[i]-'a']--;
+    }
+    for (int num : myDict) {
+        if (num) return false;
+    }
+    return true;
+}
+```
+
+##### 169. Majority Element
+Use voting algorithm to find the popular element.
+
+```cpp
+int majorityElement(vector<int>& nums) {
+    if (nums.empty()) return -1;
+    int popularElement = nums.front();
+    int counter = 1;
+    for (int i = 1; i < nums.size(); i++) {
+        if (nums[i] == popularElement) {
+            counter++;
+        }
+        else {
+            if (--counter < 0) {
+                popularElement = nums[i];
+                counter = 1;
+            }
+        }
+    }
+    return popularElement;
+}
+```
+
+##### 217. Contains Duplicate
+Use a hashtable to keep track of existing numbers. (Or simply sort the array and count, which seems as fast if not faster.)
+
+```cpp
+bool containsDuplicate(vector<int>& nums) {
+    unordered_set<int> existedNums;
+    for (int num : nums) {
+        if(existedNums.find(num) != existedNums.end()) return true;
+        else existedNums.insert(num);
+    }
+    return false;
+}
+```
+
+##### 350. Intersection of Two Arrays II
+Use a map to keep track of the number of each element in nums1 and iterate through nums2 to get the intersected occurance.
+
+```cpp
+vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+    unordered_map<int, int> myMap;
+    vector<int> intersection;
+    for (int num : nums1) {
+        if(myMap.find(num) != myMap.end()) myMap[num]++;
+        else myMap[num] = 1;
+    }
+    for (int num : nums2) {
+        if((myMap.find(num) != myMap.end()) && myMap[num]) {
+            intersection.push_back(num);
+            myMap[num]--;
+        }
+    }
+    return intersection;
+}
+```
+
+##### 206. Reverse Linked List
+Basic linked list operations. Use a tmp to store intermediate values.
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    if (head == NULL || head->next == NULL) return head;
+    ListNode* last = NULL;
+    while (head->next != NULL) {
+        ListNode* tmp = head->next;
+        head->next = last;
+        last = head;
+        head = tmp;
+    }
+    head->next = last;
+    return head;
+}
+```
+
+##### 326. Power of Three
+Stupid.
+
+```cpp
+bool isPowerOfThree(int n) {
+    if(!n) return false;
+    double log3 = log10(n)/log10(3);
+    return log3 == floor(log3);
+}
+```
+
+##### 231. Power of Two
+Stupid++;
+
+```cpp
+bool isPowerOfTwo(int n) {
+    if(!n) return false;
+    return log2(n) == floor(log2(n));
+}
+```
+
+##### 191. Number of 1 Bits
+Move to the right and count the number of 1's at the rightmost.
+
+```cpp
+int hammingWeight(uint32_t n) {
+    int counter = 0;
+    while(n) {
+        counter += n%2;
+        n >>= 1;
+    }
+    return counter;
+}
+```
+
+##### 263. Ugly Number
+Exhause the factor and see if it ends up to be 1.
+
+```cpp
+bool isUgly(int num) {
+    if (num < 1) return false;
+    while (!(num % 2)) num /= 2;
+    while (!(num % 3)) num /= 3;
+    while (!(num % 5)) num /= 5;
+    return (num == 1);
+}
+```
+
+##### 235. Lowest Common Ancestor of a Binary Search Tree
+Use dfs to find the target nodes in each branch. When there are two nodes found from the branches in one root, return the root.
+
+```cpp
+class Solution {
+public:
+    TreeNode* lca = NULL;
+
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        dfs(root, p, q);
+        return lca;
+    }
+
+    int dfs(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (root == NULL) return 0;
+        int left = dfs(root->left, p, q);
+        int right = dfs(root->right, p, q);
+        if(left < 0 || right < 0) return -1;
+        int nodeFount = 0;
+        if (root->val == p->val) nodeFount += 1;
+        if (root->val == q->val) nodeFount += 1;
+        nodeFount += left + right;
+        if (nodeFount == 2) {
+            lca = root;
+            nodeFount = -1;
+        }
+        return nodeFount;
+    }
+};
+```
+
+##### 83. Remove Duplicates from Sorted List
+When a duplicate is encountered, just skip it and link to the next one.
+
+```cpp
+ListNode* deleteDuplicates(ListNode* head) {
+    ListNode* tail = head;
+    while(tail != NULL) {
+        while(tail->next != NULL && tail->val == tail->next->val) {
+            tail->next = tail->next->next;
+        }
+        tail = tail->next;
+    }
+    return head;
+}
+```
+
+##### 70. Climbing Stairs
+Dynamic programming. Do NOT use recursion because the time complexity is huge.
+
+```cpp
+int climbStairs(int n) {
+    if(n < 1) return 0;
+    if(n == 1) return 1;
+    if(n == 2) return 2;
+    vector<int> series(n, 0);
+    series[0] = 1;
+    series[1] = 2;
+    for(int i = 2; i < n; i++){
+        series[i] = series[i-1] + series[i-2];
+    }
+    return series.back();
+}
+```
