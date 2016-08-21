@@ -784,6 +784,604 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
 }
 ```
 
+##### 66. Plus One
+Keep adding till no temp is left.
+
+```cpp
+vector<int> plusOne(vector<int>& digits) {
+    int tmp = 1;
+    int i = digits.size() - 1;
+    while (tmp && i > -1) {
+        int sum = tmp + digits[i];
+        digits[i] = sum%10;
+        tmp = sum/10;
+        i--;
+    }
+    if (tmp) {
+        digits.insert(digits.begin(), tmp);
+    }
+    return digits;
+}
+```
+
+##### 102. Binary Tree Level Order Traversal
+It seems like the previous one, except no reverse in the end.
+
+```cpp
+vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> results;
+    vector<int> rowResults;
+    queue<TreeNode*> bfsQueue;
+    queue<TreeNode*> tmpQueue;
+    if(root != NULL) bfsQueue.push(root);
+    while (!bfsQueue.empty()) {
+        TreeNode* tmpNode = bfsQueue.front();
+        bfsQueue.pop();
+        rowResults.push_back(tmpNode->val);
+        if(tmpNode->left != NULL) tmpQueue.push(tmpNode->left);
+        if(tmpNode->right != NULL) tmpQueue.push(tmpNode->right);
+        if (bfsQueue.empty() && !tmpQueue.empty()) {
+            swap(bfsQueue, tmpQueue);
+            results.push_back(rowResults);
+            rowResults.clear();
+        }
+    }
+    if(!rowResults.empty()) results.push_back(rowResults);
+    return results;
+}
+```
+
+##### 36. Valid Sudoku
+Just check each column, row and block.
+
+```cpp
+class Solution {
+public:
+    const int SIZE = 9;
+    const int BLOCK_SIZE = 3;
+    const int NUM_BLOCK = 3;
+    bool isValidSudoku(vector<vector<char>>& board) {
+        for (int i = 0; i < SIZE; i++) {
+            int myMap[9] = {0};
+            for (int j = 0; j < SIZE; j++) {
+                if (board[i][j] != '.') {
+                    if (myMap[board[i][j] - '1']) return false;
+                    else myMap[board[i][j] - '1'] = 1;
+                }
+            }
+        }
+        for (int i = 0; i < SIZE; i++) {
+            int myMap[9] = {0};
+            for (int j = 0; j < SIZE; j++) {
+                if (board[j][i] != '.') {
+                    if (myMap[board[j][i] - '1']) return false;
+                    else myMap[board[j][i] - '1'] = 1;
+                }
+            }
+        }
+        for (int k = 0; k < NUM_BLOCK; k++) {
+            for (int l = 0; l < NUM_BLOCK; l++) {
+                int myMap[9] = {0};
+                for (int i = k*BLOCK_SIZE; i < (k+1)*BLOCK_SIZE; i++) {
+                    for (int j = l*BLOCK_SIZE; j < (l+1)*BLOCK_SIZE; j++) {
+                        if (board[j][i] != '.') {
+                            if (myMap[board[j][i] - '1']) return false;
+                            else myMap[board[j][i] - '1'] = 1;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+};
+```
+
+##### 9. Palindrome Number
+Convert it to string, I don't care.
+
+```cpp
+bool isPalindrome(int x) {
+    string str = to_string(x);
+    string ori(str);
+    reverse(str.begin(), str.end());
+    return str == ori;
+}
+```
+
+##### 110. Balanced Binary Tree
+From each node, check its left and right heights. Use dfs to get maximum height.
+
+```cpp
+bool isBalanced(TreeNode* root) {
+    return dfsHeight(root, 0) != -1;
+}
+int dfsHeight(TreeNode* node, int height) {
+    if (node == NULL) return height;
+    int lh = dfsHeight(node->left, height+1);
+    int rh = dfsHeight(node->right, height+1);
+    if (lh == -1 || rh == -1 || abs(lh - rh) > 1) return -1;
+    else return max(lh, rh);
+}
+```
+
+##### 111. Minimum Depth of Binary Tree
+BFS will do nicely. Use a for loop with queue size for each level.
+
+```cpp
+int minDepth(TreeNode* root) {
+    queue<TreeNode*> bfsQueue, tmpQueue;
+    if (root != NULL) bfsQueue.push(root);
+    int level;
+    while (!bfsQueue.empty()) {
+        level++;
+        int N = bfsQueue.size();
+        for (int i = 0; i < N; i++) {
+            TreeNode* node = bfsQueue.front();
+            bfsQueue.pop();
+            if (node->left == NULL && node->right == NULL) return level;
+            if (node->left != NULL) bfsQueue.push(node->left);
+            if (node->right != NULL) bfsQueue.push(node->right);
+        }
+    }
+    return 0;
+}
+```
+
+##### 257. Binary Tree Paths
+Use dfs to find each path. Add it to result vector when a leaf is reached.
+
+```cpp
+class Solution {
+private:
+    vector<string> allPath;
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        if (root != NULL) {
+            string base = to_string(root->val);
+            if (root->left == NULL && root->right == NULL)
+                allPath.push_back(base);
+            else {
+                dfsGetPaths(root->left, base);
+                dfsGetPaths(root->right, base);
+            }
+        }
+        return allPath;
+    }
+
+    void dfsGetPaths(TreeNode* node, string str) {
+        if (node == NULL) return;
+        str += "->" + to_string(node->val);
+        if (node->left == NULL && node->right == NULL) {
+            allPath.push_back(str);
+        } else {
+            dfsGetPaths(node->left, str);
+            dfsGetPaths(node->right, str);
+        }
+    }
+};
+```
+
+##### 205. Isomorphic Strings
+
+Essentially, build two maps from one map to another (isomorphically) and then check if there is any mismatch. Below is a nice, concise implementation from online discussion.
+
+```cpp
+bool isIsomorphic(string s, string t) {
+    int cs[128] = {0}, ct[128] = {0};
+    for(int i=0; i<s.size(); i++) {
+        if(cs[s[i]] != ct[t[i]]) return false;
+        else if(!cs[s[i]] && !ct[t[i]]) {
+            cs[s[i]] = i+1;
+            ct[t[i]] = i+1;
+        }
+    }
+    return true;
+}
+```
+
+##### 223. Rectangle Area
+
+Find the areas of the two rectangles and subtract the overlapping area from their sum.
+
+```cpp
+bool isIsomorphic(string s, string t) {
+    int cs[128] = {0}, ct[128] = {0};
+    for(int i=0; i<s.size(); i++)
+    {
+        if(cs[s[i]] != ct[t[i]]) return false;
+        else if(!cs[s[i]] && !ct[t[i]]) //only record once
+        {
+            cs[s[i]] = i+1;
+            ct[t[i]] = i+1;
+        }
+    }
+    return true;
+}
+```
+
+##### 19. Remove Nth Node From End of List
+ Move one till the end with the other one n nodes behind it. Then move that node. Take care of the edge cases.
+
+ ```cpp
+ ListNode* removeNthFromEnd(ListNode* head, int n) {
+    if (head == NULL) return head;
+    ListNode* tail = head;
+    ListNode* ntail = head;
+    for (int i = 0; i < n + 1; i++) {
+        if (tail == NULL) return head->next;
+        tail = tail->next;
+    }
+    while (tail!=NULL) {
+        tail = tail->next;
+        ntail = ntail->next;
+    }
+    ntail->next = ntail->next->next;
+    return head;
+}
+```
+
+##### 290. Word Pattern
+
+This is very similar to 205. Instead of creating an isomorphical map between two characters, create a map between a char and a string.
+
+```cpp
+bool wordPattern(string pattern, string str) {
+    vector<string> splitStr = splitBySpace(str);
+    unordered_map<char, string> map1;
+    unordered_map<string, char> map2;
+    if(pattern.size() != splitStr.size()) return false;
+    for (int i = 0; i < pattern.size(); i++) {
+        if (map1.find(pattern[i]) == map1.end() && map2.find(splitStr[i]) == map2.end()) {
+            map1[pattern[i]] = splitStr[i];
+            map2[splitStr[i]] = pattern[i];
+        } else {
+            if (map1[pattern[i]] != splitStr[i]) return false;
+            if (map2[splitStr[i]] != pattern[i]) return false;
+        }
+    }
+    return true;
+}
+vector<string> splitBySpace(string str) {
+    vector<string> tokens;
+    string delim = " ";
+    size_t prev = 0, pos = 0;
+    do{
+        pos = str.find(delim, prev);
+        if (pos == string::npos) pos = str.length();
+        string token = str.substr(prev, pos-prev);
+        if (!token.empty()) tokens.push_back(token);
+        prev = pos + delim.length();
+    } while (pos < str.length() && prev < str.length());
+    return tokens;
+}
+```
+
+##### 160. Intersection of Two Linked Lists
+Let two nodes travel to the end and then switch to the other node. When they meet, it is the intersection. Below is a nice implementation from online.
+
+```cpp
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+    ListNode *cur1 = headA, *cur2 = headB;
+    while (cur1 != cur2) {
+        cur1 = cur1 ? cur1->next : headB;
+        cur2 = cur2 ? cur2->next : headA;
+    }
+    return cur1;
+}
+```
+
+##### 88. Merge Sorted Array
+Similar to merge two linked list. Instead of merging from the head, merge from the tail to do everything in place.
+
+```cpp
+void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+    int r1 = m - 1, r2 = n - 1;
+    for(int i = m + n - 1; i > -1 && r1 > -1 && r2 > -1; i--) {
+        int tmp;
+        if (nums1[r1] < nums2[r2]) {
+            tmp = nums2[r2--];
+        } else {
+            tmp = nums1[r1--];
+        }
+        nums1[i] = tmp;
+    }
+    while (r2 > -1) {
+        nums1[r2] = nums2[r2--];
+    }
+}
+```
+
+##### 219. Contains Duplicate II
+Keep a hashset for the `k` elements in between and check if there are any duplicates.
+
+```cpp
+bool containsNearbyDuplicate(vector<int>& nums, int k) {
+    unordered_set<int> map;
+    for(int i = 0; i < k && i < nums.size(); i++) {
+        if(map.find(nums[i]) != map.end()) return true;
+        else map.insert(nums[i]);
+    }
+    for(int i = k; i < nums.size(); i++) {
+        if(map.find(nums[i]) != map.end()) return true;
+        else {
+            map.insert(nums[i]);
+            map.erase(nums[i-k]);
+        }
+    }
+    return false;
+}
+```
+
+##### 38. Count and Say
+Count and say, literally. Just do the strings right.
+
+```cpp
+string countAndSay(int n) {
+    if (n < 1) return "";
+    string result = "1";
+    for (int i = 1; i < n; i++){
+        result = nextSequence(result);
+    }
+    return result;
+}
+string nextSequence(const string& str) {
+    string nextStr = "";
+    char tmp = str[0];
+    int count = 1;
+    for(int i = 1; i < str.size(); i++) {
+        if (str[i] != tmp) {
+            if (count) {
+                nextStr += to_string(count) + string(1, tmp);
+                count = 1;
+                tmp = str[i];
+            }
+        } else {
+            count++;
+        }
+    }
+    nextStr += to_string(count) + string(1, tmp);
+    return nextStr;
+}
+```
+
+##### 20. Valid Parentheses
+Use a stack to keep track of the last parenthesis and see if the next one will match.
+
+```cpp
+bool isValid(string s) {
+    stack<char> lastPar;
+    for(int i = 0; i < s.size(); i++) {
+        if(s[i] == '(' || s[i] == '{' || s[i] == '[') {
+            lastPar.push(s[i]);
+        } else {
+            if (lastPar.empty()) return false;
+            else if (lastPar.top() != (s[i] - 2) && lastPar.top() != (s[i] - 1)) return false;
+            else lastPar.pop();
+        }
+    }
+    if(lastPar.empty()) return true;
+    else return false;
+}
+```
+
+##### 234. Palindrome Linked List
+Reverse the linked list in the middle and check if the list is palindrome from both sides.
+
+```cpp
+bool isPalindrome(ListNode* head) {
+    if (head == NULL) return true;
+    ListNode* slow = head;
+    ListNode* fast = head;
+    while (fast != NULL) {
+        fast = fast->next;
+        if (fast != NULL) fast = fast->next;
+        else break;
+        slow = slow->next;
+    }
+    ListNode* last = slow;
+    slow = slow->next;
+    last->next = NULL;
+    while (slow != NULL) {
+        ListNode* tmp = slow->next;
+        slow->next = last;
+        last = slow;
+        slow = tmp;
+    }
+
+    while(head != NULL && last != NULL) {
+        if(head->val != last->val) return false;
+        head = head->next;
+        last = last->next;
+    }
+    return true;
+}
+```
+
+##### 58. Length of Last Word
+Forget fancy functions, just count from the back and ignore irrelevant characters. Do it the simple way.
+
+```cpp
+int lengthOfLastWord(string s) {
+    int i = s.size() - 1;
+    int counter = 0;
+    while (i > -1) {
+        if (s[i--] != ' ') counter++;
+        else if (counter) return counter;
+    }
+    return counter;
+}
+```
+
+##### 203. Remove Linked List Elements
+Do it in place, just link the next element. Make sure to skip all repeating elements in a row.
+
+```cpp
+ListNode* removeElements(ListNode* head, int val) {
+    while (head != NULL && head->val == val) head = head->next;
+    ListNode* tail = head;
+    while (tail != NULL) {
+        while (tail->next != NULL && tail->next->val == val) {
+                tail->next = tail->next->next;
+        }
+        tail = tail->next;
+    }
+    return head;
+}
+```
+
+##### 225. Implement Stack using Queues
+Use a circular queue to implement stack. (Implementing stack using queue is a BAD idea.)
+
+```cpp
+class Stack {
+private:
+    queue<int> circularQueue;
+public:
+    // Push element x onto stack.
+    void push(int x) {
+        circularQueue.push(x);
+        for (int i = 0; i < (circularQueue.size() - 1); i++) {
+            circularQueue.push(circularQueue.front());
+            circularQueue.pop();
+        }
+    }
+
+    // Removes the element on top of the stack.
+    void pop() {
+        circularQueue.pop();
+    }
+
+    // Get the top element.
+    int top() {
+        if (!circularQueue.empty()) return circularQueue.front();
+        else return -1;
+    }
+
+    // Return whether the stack is empty.
+    bool empty() {
+        return circularQueue.empty();
+    }
+};
+```
+
+##### 14. Longest Common Prefix
+Just check each string and get the longest common prefix from each comparison.
+
+```cpp
+string longestCommonPrefix(vector<string>& strs) {
+    if (strs.empty()) return "";
+    string lcp = strs[0];
+    for (int i = 1; i < strs.size(); i++) lcp = findLcp(lcp, strs[i]);
+    return lcp;
+}
+string findLcp(string str1, string str2) {
+    string tmpLcp = "";
+    for(int i = 0; i < min(str1.size(), str2.size()); i++) {
+        if (str1[i] == str2[i]) {
+            tmpLcp += str1[i];
+        } else break;
+    }
+    return tmpLcp;
+}
+```
+
+##### 303. Range Sum Query - Immutable
+Make a partial sum array first. DP.
+
+```cpp
+class NumArray {
+private:
+    vector<int> arrayPartialSum;
+public:
+    NumArray(vector<int> &nums) {
+        arrayPartialSum = nums;
+        for (int i = 1; i < nums.size(); i++) {
+            arrayPartialSum[i] = nums[i] + arrayPartialSum[i-1];
+        }
+        arrayPartialSum.insert(arrayPartialSum.begin(), 0);
+
+    }
+
+    int sumRange(int i, int j) {
+        return arrayPartialSum[j + 1] - arrayPartialSum[i];
+    }
+};
+```
+
+##### 1. Two Sum
+Classy. Use a map.
+
+```cpp
+vector<int> twoSum(vector<int>& nums, int target) {
+    unordered_map<int, int> existingNums;
+    for (int i = 0; i < nums.size(); i++) {
+        int comp = target - nums[i];
+        if (existingNums.find(comp) != existingNums.end()) return vector<int> {existingNums[comp], i};
+        else existingNums[nums[i]] = i;
+    }
+    return vector<int> {};
+}
+```
+
+##### 125. Valid Palindrome
+This one is really annoying. There is a nice function `isalnum` to quickly check if a char is letter or number. (I can't believe c++ doesn't have a `to_lower` for strings!)
+
+```cpp
+bool isPalindrome(string s) {
+    int i = 0, j = s.size() - 1;
+    while (i < j) {
+        while (!isalnum(s[i]) && i < j) i++;
+        while (!isalnum(s[j]) && i < j) j--;
+        if (tolower(s[i++]) != tolower(s[j--]))
+            return false;
+    }
+    return true;
+}
+```
+
+##### 155. Min Stack
+Have a stack that also keeps track of the smallest number "so far". When a number is popped, the minima associated the rest elements should not change.
+
+```cpp
+class MinStack {
+struct NumPair {
+    int num;
+    int curMin;
+    NumPair(int n, int m) {
+        num = n;
+        curMin = m;
+    }
+};
+private:
+    stack<NumPair> numStack;
+public:
+    /** initialize your data structure here. */
+    MinStack() {
+    }
+
+    void push(int x) {
+        NumPair tmp(x, min(x,this->getMin()));
+        numStack.push(tmp);
+    }
+
+    void pop() {
+        if (!numStack.empty()) return numStack.pop();
+    }
+
+    int top() {
+        if (!numStack.empty()) return numStack.top().num;
+        else return -1;
+    }
+
+    int getMin() {
+        if (!numStack.empty()) return numStack.top().curMin;
+        else return INT_MAX;
+    }
+};
+```
+
+
 ## Medium
 
 ##### 381. Insert Delete GetRandom O(1) - Duplicates allowed
