@@ -1538,6 +1538,67 @@ public:
 };
  ```
 
+##### 300. Longest Increasing Subsequence
+
+Use basic dp idea. For each number, check its previous longest subsequence and store the value. For each new element, check the longest possible subsquence to form from the previous data. Then, just return the biggest number in the array.
+
+Possible optimization to make the solution o(nlog(n)): instead of marking every number, keep a vector of maximum subsequence and associated largest number. This way, a larger subsequence can only be made if the new number is larger than the associated largest number. This way, a binary search will be used to determine the max length associated with this new number. Necessary update will be made to the vector when the new max length can be made with smaller tail element. (It's too annoying to implement the binary search here so I didn't implement it.)
+
+ ```cpp
+ int lengthOfLIS(vector<int>& nums) {
+    vector<pair<int, int>> maximumLengthDP;
+    for (int i = 0; i < nums.size(); i++) {
+        int maxLength = 1;
+        for (int j = 0; j < maximumLengthDP.size(); j++) {
+            if (maximumLengthDP[j].first < nums[i]) maxLength = max(maxLength, maximumLengthDP[j].second + 1);
+        }
+        maximumLengthDP.push_back(make_pair(nums[i], maxLength));
+    }
+    int maxLen = 0;
+    for (int i = 0; i < maximumLengthDP.size(); i++) {
+        maxLen = max(maxLen, maximumLengthDP[i].second);
+    }
+    return maxLen;
+}
+```
+
+##### 136. Single Number
+Simple dirty trick - Xor operatory.
+
+```cpp
+int singleNumber(vector<int>& nums) {
+    int result = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        result ^= nums[i];
+    }
+    return result;
+}
+```
+
+##### 338. Counting Bits
+Find the pattern. Each \[2^n, 2^(n+1)\] segment is the \[0, 2^n\] plus one.
+
+```cpp
+vector<int> countBits(int num) {
+    if (num < 0) return vector<int> {};
+    int N = ceil(log2(num));
+    vector<int> allBits = {0};
+    for (int i = 0; i < N + 1; i++) {
+        allBits = expand(allBits);
+    }
+    vector<int> partBits(allBits.begin(), allBits.begin() + num + 1);
+    return partBits;
+}
+vector<int> expand(vector<int> oldVec) {
+    vector<int> newVec(oldVec);
+    for (int i = 0; i < oldVec.size(); i++) {
+        oldVec[i] += 1;
+    }
+    newVec.insert(newVec.end(), oldVec.begin(), oldVec.end());
+    return newVec;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
