@@ -8,6 +8,8 @@ tags:
 use_math: true
 ---
 
+\\[ \frac{1}{n^{2}} \\]
+
 ## Overview of the solution
 What we will need to complete the homework:
 
