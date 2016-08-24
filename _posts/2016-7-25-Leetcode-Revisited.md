@@ -1381,7 +1381,6 @@ public:
 };
 ```
 
-
 ## Medium
 
 ##### 381. Insert Delete GetRandom O(1) - Duplicates allowed
@@ -1575,6 +1574,7 @@ int singleNumber(vector<int>& nums) {
 }
 ```
 
+
 ##### 338. Counting Bits
 Find the pattern. Each \[2^n, 2^(n+1)\] segment is the \[0, 2^n\] plus one.
 
@@ -1597,6 +1597,260 @@ vector<int> expand(vector<int> oldVec) {
     newVec.insert(newVec.end(), oldVec.begin(), oldVec.end());
     return newVec;
 }
+```
+
+##### 122. Best Time to Buy and Sell Stock II
+Sell when the price is at a local maximum.
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    int curMin = prices[0];
+    int curMax = prices[0];
+    int sum = 0;
+    for (int i = 0; i < prices.size(); i++) {
+        if (prices[i] < prices[i - 1]) {
+            sum += curMax - curMin;
+            curMin = prices[i];
+            curMax = prices[i];
+        } else {
+            curMin = min(curMin, prices[i]);
+            curMax = max(curMax, prices[i]);
+        }
+    }
+    sum += curMax - curMin;
+    return sum;
+}
+```
+
+##### 357. Count Numbers with Unique Digits
+I think a math formula can be derived. Not super interesting, implementation comes from online discussion.
+
+```cpp
+int countNumbersWithUniqueDigits(int n) {
+    int ans = 10, tmp = 9;
+    for(int i = 1; i < n && tmp; ++i) ans += (tmp *= (10-i));
+    return n ? ans : 1;
+}
+```
+
+##### 343. Integer Break
+Use dynamic programming. Break an integer into two parts and multiply them to get the possible maximum. Note that the registered maximum should be the greater one of 1. the largest product and 2. the number itself. E.g., 2 can only have 1 as its maximum breakdown product but it does not have to be broken down when it's used as a part of 3.
+
+```cpp
+int integerBreak(int n) {
+    vector<int> dp(n, 1);
+    for(int i = 1; i < n; i++) {
+        int M = ceil((i + 1)/2);
+        int maxProd = 1;
+        for(int j = 0; j < M; j++) {
+            maxProd = max(maxProd, dp[j] * dp[i - j - 1]);
+        }
+        if (i == (n - 1)) return maxProd;
+        dp[i] = max(maxProd, i + 1);
+    }
+    return dp[n-1];
+}
+```
+
+##### 319. Bulb Switcher
+There is a mathematical argument behind the results. I'm not too interested.
+
+```cpp
+int bulbSwitch(int n) {
+    return sqrt(n);
+}
+```
+
+##### 144. Binary Tree Preorder Traversal
+Use a stack to do dfs.
+
+```cpp
+vector<int> preorderTraversal(TreeNode* root) {
+    vector<int> valList;
+    stack<TreeNode*> dfsStack;
+    dfsStack.push(root);
+    while (!dfsStack.empty()) {
+        int N = dfsStack.size();
+        for (int i = 0; i < N; i++) {
+            TreeNode* tmp = dfsStack.top();
+            dfsStack.pop();
+            if (tmp != NULL) {
+                dfsStack.push(tmp->right);
+                dfsStack.push(tmp->left);
+                valList.push_back(tmp->val);
+            }
+        }
+    }
+    return valList;
+}
+```
+
+##### 378. Kth Smallest Element in a Sorted Matrix
+I used a linear search, basically iterate through the smallest set that contains all the candidates. But a smarter move would be to do a binary search given that the matrix is sorted.
+
+Linear search:
+```cpp
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+    priority_queue<int> kQueue;
+    int N = matrix.size();
+    int M = ceil((float) k / N);
+    int L = ceil(sqrt(k));
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            kQueue.push(matrix[i][j]);
+            if (kQueue.size() > k) kQueue.pop();
+        }
+    }
+    for (int i = M; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            kQueue.push(matrix[i][j]);
+            if (kQueue.size() > k) kQueue.pop();
+        }
+    }
+    for (int i = M; i < L; i++) {
+        for (int j = M; j < L; j++) {
+            kQueue.push(matrix[i][j]);
+            if (kQueue.size() > k) kQueue.pop();
+        }
+    }
+    return kQueue.top();
+}
+```
+
+Binary search (from online discussion):
+
+```cpp
+int kthSmallest(vector<vector<int>>& matrix, int k)
+{
+    int size = matrix.size(), l = matrix[0][0], r = matrix[size-1][size-1];
+    while(l < r)
+    {
+        int smaller = 0, m = l+((r-l)>>1);
+        for(int i = 0; i < size; ++i)
+            smaller += upper_bound(matrix[i].begin(), matrix[i].end(), m)-matrix[i].begin();
+        smaller<k? l=m+1 : r=m;
+    }
+    return r;
+}
+```
+
+##### 384. Shuffle an Array
+I'm not sure what's going on with this one, just shuffle it and return each time.
+
+```cpp
+class Solution {
+private:
+    vector<int> ori;
+    vector<int> shuffled;
+public:
+    Solution(vector<int> nums) {
+        ori = nums;
+        shuffled = nums;
+    }
+
+    /** Resets the array to its original configuration and return it. */
+    vector<int> reset() {
+        return ori;
+    }
+
+    /** Returns a random shuffling of the array. */
+    vector<int> shuffle() {
+        random_shuffle(shuffled.begin(), shuffled.end());
+        return shuffled;
+    }
+};
+```
+
+##### 238. Product of Array Except Self
+The central idea is to have partial product both in the left and in the right, then multiply them together. I did by modifying the original array. But a smarter way will do everything in place.
+
+Basic, no extra space:
+
+```cpp
+vector<int> productExceptSelf(vector<int>& nums) {
+    vector<int> prodVec(nums.size(), 1);
+    for (int i = 1; i < nums.size(); i++) {
+        prodVec[i] = prodVec[i - 1] * nums[i - 1];
+    }
+    int last = 1;
+    for (int i = nums.size() - 1; i > -1; i--) {
+        int tmp = last * nums[i];
+        nums[i] = last;
+        last = tmp;
+    }
+    for (int i = 0; i < nums.size(); i++) {
+        prodVec[i] = prodVec[i] * nums[i];
+    }
+    return prodVec;
+}
+```
+
+In-place version:
+```cpp
+vector<int> productExceptSelf(vector<int>& nums) {
+    int n = nums.size();
+    vector<int> output(n, 1);
+    int front = 1;
+    int end = 1;
+    for (int i = 0; i < n-1; i++) {
+        front *= nums[i];
+        end *= nums[n-1-i];
+        output[i+1] *= front;
+        output[n-2-i] *= end;
+    }
+    return output;
+}
+```
+
+##### 347. Top K Frequent Elements
+Use a map counter to count each distinct elements. Then use a priority_queue to get the kth most frequent in the collection.
+
+NOTE: remember to get the default constructor for struct.
+
+```cpp
+struct NumWithCounter {
+    int num;
+    int counter;
+    NumWithCounter();
+    NumWithCounter(int n, int c) {
+        num = n;
+        counter = c;
+    }
+};
+
+struct CmpNum {
+    inline bool operator() (NumWithCounter a, NumWithCounter b) {
+        return a.counter > b.counter;
+    }
+};
+
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> mapCounter;
+        for (int i = 0; i < nums.size(); i++) {
+            if (mapCounter.find(nums[i]) != mapCounter.end()) {
+                mapCounter[nums[i]]++;
+            } else {
+                mapCounter[nums[i]] = 1;
+            }
+        }
+        priority_queue<NumWithCounter, vector<NumWithCounter>, CmpNum> kHighNum;
+        for (auto element : mapCounter) {
+            kHighNum.push(NumWithCounter(element.first, element.second));
+            if (kHighNum.size() > k) {
+                kHighNum.pop();
+            }
+        }
+        vector<int> ret;
+        while (!kHighNum.empty()) {
+            ret.push_back(kHighNum.top().num);
+            kHighNum.pop();
+        }
+        return ret;
+    }
+};
 ```
 
 ## Hard
