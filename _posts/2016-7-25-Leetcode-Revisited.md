@@ -518,6 +518,7 @@ public:
 
 ##### 121. Best Time to Buy and Sell Stock
 Just get the maximum difference between minimum and maximum after it.
+
 ```cpp
 int maxProfit(vector<int>& prices) {
     if (prices.empty()) return 0;
@@ -1690,6 +1691,7 @@ vector<int> preorderTraversal(TreeNode* root) {
 I used a linear search, basically iterate through the smallest set that contains all the candidates. But a smarter move would be to do a binary search given that the matrix is sorted.
 
 Linear search:
+
 ```cpp
 int kthSmallest(vector<vector<int>>& matrix, int k) {
     priority_queue<int> kQueue;
@@ -1729,7 +1731,7 @@ int kthSmallest(vector<vector<int>>& matrix, int k)
         int smaller = 0, m = l+((r-l)>>1);
         for(int i = 0; i < size; ++i)
             smaller += upper_bound(matrix[i].begin(), matrix[i].end(), m)-matrix[i].begin();
-        smaller<k? l=m+1 : r=m;
+        smaller < k ? l = m + 1 : r = m;
     }
     return r;
 }
@@ -1786,7 +1788,8 @@ vector<int> productExceptSelf(vector<int>& nums) {
 }
 ```
 
-In-place version:
+In-place version
+
 ```cpp
 vector<int> productExceptSelf(vector<int>& nums) {
     int n = nums.size();
