@@ -1005,7 +1005,7 @@ bool isIsomorphic(string s, string t) {
 
 Move one till the end with the other one n nodes behind it. Then move that node. Take care of the edge cases.
 
- ```cpp
+```cpp
  ListNode* removeNthFromEnd(ListNode* head, int n) {
     if (head == NULL) return head;
     ListNode* tail = head;
