@@ -970,7 +970,7 @@ Essentially, build two maps from one map to another (isomorphically) and then ch
 ```cpp
 bool isIsomorphic(string s, string t) {
     int cs[128] = {0}, ct[128] = {0};
-    for(int i=0; i<s.size(); i++) {
+    for(int i=0; i < s.size(); i++) {
         if(cs[s[i]] != ct[t[i]]) return false;
         else if(!cs[s[i]] && !ct[t[i]]) {
             cs[s[i]] = i+1;
@@ -988,7 +988,7 @@ Find the areas of the two rectangles and subtract the overlapping area from thei
 ```cpp
 bool isIsomorphic(string s, string t) {
     int cs[128] = {0}, ct[128] = {0};
-    for(int i=0; i<s.size(); i++)
+    for(int i=0; i < s.size(); i++)
     {
         if(cs[s[i]] != ct[t[i]]) return false;
         else if(!cs[s[i]] && !ct[t[i]]) //only record once
@@ -1002,7 +1002,8 @@ bool isIsomorphic(string s, string t) {
 ```
 
 ##### 19. Remove Nth Node From End of List
- Move one till the end with the other one n nodes behind it. Then move that node. Take care of the edge cases.
+
+Move one till the end with the other one n nodes behind it. Then move that node. Take care of the edge cases.
 
  ```cpp
  ListNode* removeNthFromEnd(ListNode* head, int n) {
