@@ -1545,7 +1545,7 @@ Use basic dp idea. For each number, check its previous longest subsequence and s
 
 Possible optimization to make the solution o(nlog(n)): instead of marking every number, keep a vector of maximum subsequence and associated largest number. This way, a larger subsequence can only be made if the new number is larger than the associated largest number. This way, a binary search will be used to determine the max length associated with this new number. Necessary update will be made to the vector when the new max length can be made with smaller tail element. (It's too annoying to implement the binary search here so I didn't implement it.)
 
- ```cpp
+```cpp
  int lengthOfLIS(vector<int>& nums) {
     vector<pair<int, int>> maximumLengthDP;
     for (int i = 0; i < nums.size(); i++) {
