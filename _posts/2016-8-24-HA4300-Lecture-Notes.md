@@ -65,7 +65,7 @@ Red: Cabernet Sauvignon, Merlot, Pinot Noir, Zinfandel, Syrah/Shiraz
 
 White Zinfandel
 
-**! Perfect area for growing grapes: 30-50 N. and S. **
+__! Perfect area for growing grapes: 30-50 N. and S.__
 
 ### Categories for coutries
 New world - less than 400 years of histories. E.g. America, New Zealand, Chile, ...
@@ -74,9 +74,9 @@ Old world - more than 400 years of commericial histories. E.G. France, Germany, 
 
 Grey zones - China, India (long histories but not commericially selling wine)
 
-** Viticulture - the growing of grapes **
+__Viticulture - the growing of grapes__
 
-** Viniculture - the making of the wine **
+__Viniculture - the making of the wine__
 
 ### The steps in making wine
 #### Viticulture
@@ -92,7 +92,7 @@ Wind can be detrimental. If the grape skin breaks, bacteria may get in.
 
 Variation: changing from green to color.
 
-** MOG: materials other than grapes **
+__MOG: materials other than grapes__
 
 #### Viniculture:
 1. Sort.
@@ -127,7 +127,7 @@ Variation: changing from green to color.
 14. Bottling.
 15. Aging**.
 
-** Aging depends on region, laws, or winemaker preference.
+**Aging depends on region, laws, or winemaker preference.
 
 Bottle sizes can also affect aging rate. Larger bottle => slower aging rate.
 
