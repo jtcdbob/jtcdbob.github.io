@@ -9,9 +9,9 @@ tags:
   - Lectures
 use_math: true
 ---
-## Introduction
+# Introduction
 
-#### Course information
+## Course information
 Lecturer: Prof. David Bindel
 
 Course [website](http://www.cs.cornell.edu/%7Ebindel/class/cs6210%2Df16/).
@@ -20,7 +20,7 @@ Office Hours: 1:30-2:30 W, 10-11R
 
 TA: David Eriksson
 
-#### Today (08/24/16)
+## Today (08/24/16)
 * Logistics
 * Matrix interpretation / matrix algebra vs. linear algebra
 * Dense matrix layouts, matvec, matmul, and Basic LA Subroutines (BLAS)
@@ -34,13 +34,13 @@ $$\bf Ax = \lambda x$$
 
 $$\bf A = U\Sigma V^T$$
 
-##### Linear Algebra
+### Linear Algebra
 Vector spaces, norms, positive definite, linear maps, bilinear forms, quadratic forms
 
-##### Matrix Algebra
+### Matrix Algebra
 Representation of LA, graphs of matrices, shapes of matrices, representation of matrices as data structure.
 
-##### Dense representation of matrices
+### Dense representation of matrices
 * Vectors: one major representation
     * Each element in a consecutive cell.
 * Matrices: col-major, row-major. memory.
