@@ -47,35 +47,34 @@ use_math: true
 US is the largest wine consumption country.
 
 Two magazines:
+
 * _Wine spectator_
 * _Decanter_
 
 ### Wine consumption:
 Total wine consumption:
+
 * Red 43.7\%
 * White 49.6\%
 * Blush 6.6\%
 
 White: Chandonnay, Pinot Grigio/Gris, Moscato, Sanvignon Blanc, Riesling
 
-Red: Cabernet Sauvignon
-Merlog
-Pinot Noir
-Zinfandel
-Syrah/Shiraz
+Red: Cabernet Sauvignon, Merlot, Pinot Noir, Zinfandel, Syrah/Shiraz
 
 White Zinfandel
 
 **! Perfect area for growing grapes: 30-50 N. and S. **
 
 ### Categories for coutries
-New world - < 400 years of histories. E.g. America, New Zealand, Chile, ...
+New world - less than 400 years of histories. E.g. America, New Zealand, Chile, ...
 
-Old world - > 400 years of commericial histories. E.G. France, Germany, Spain, Moroco, ...
+Old world - more than 400 years of commericial histories. E.G. France, Germany, Spain, Moroco, ...
 
 Grey zones - China, India (long histories but not commericially selling wine)
 
 ** Viticulture - the growing of grapes **
+
 ** Viniculture - the making of the wine **
 
 ### The steps in making wine
