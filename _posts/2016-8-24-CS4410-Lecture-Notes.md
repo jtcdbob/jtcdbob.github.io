@@ -56,11 +56,13 @@ Course Objectives:
 Software to manage hardware resources.
 
 Applications <-> OS <-> Hardware
+
 * Virtual machine interface.
 * Physical machine interface.
 
 ### Virtual machine
 Software emulation of an "abstract machine"
+
 * Illusion of hardware having features one wants
     * E.g., networking (files vs. packets)
     * E.g., storage (files vs. registers)
@@ -72,12 +74,14 @@ Software emulation of an "abstract machine"
 
 ## What makes an operating system good?
 Two criteria:
+
 * Principles
     * Does the design conform to a set of principles?
 * Performance
     * Does the design meet certain objectives
 
 Some principles:
+
 * Reliability - Does the system operate as per its specification?
 * Availability - What portion of the time is the system working?
 * Security - Can the system be compromised by an attacker?
@@ -93,15 +97,15 @@ Some principles:
 * Predictabiliity - consistency of an objective over a period of time.
 
 ## Why study operating systems?
- * Most widely used OS today are designed in the last decade.
- * Ever-evolving applications
-     * Self-driving cars
-     * Internet of things
-     * smart homes
- * Ever-evolving technologies
-     * Hardwares
-     * Memory
-     * .......
+* Most widely used OS today are designed in the last decade.
+* Ever-evolving applications
+   * Self-driving cars
+   * Internet of things
+   * smart homes
+* Ever-evolving technologies
+   * Hardwares
+   * Memory
+   * .......
 
 ## This course - principles and performance
 * Design principles (more or less) same across various OS
