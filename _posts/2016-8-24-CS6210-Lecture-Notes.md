@@ -46,8 +46,9 @@ Representation of LA, graphs of matrices, shapes of matrices, representation of 
 * Matrices: col-major, row-major. memory.
 * Matrix vector ($$\bf Ax $$)
     * Two loops:
-        1. $$\bf y = Ax$$
+        1. $$\bf y = Ax$$.
         2. Compute
+           
             ```
             for i = 1:n
                 for j = 1:n
@@ -55,11 +56,13 @@ Representation of LA, graphs of matrices, shapes of matrices, representation of 
             ```
         3. Total cost: $$2n^2$$ flops (floating point ops), $$o(n^2)$$ time
     * Row oriented.
+        
         ```
         for i = 1:n
             y(i) = y(i) + A(i,:)*x(:);
         ```
     * Col oriented
+        
         ```
         for j = 1:n
             y = y + A(:,j)*x(j);
@@ -71,6 +74,7 @@ Representation of LA, graphs of matrices, shapes of matrices, representation of 
 * Blocking.
 
 Notes on performance for the lazy.
+
 1. Don't write your own BLAS
     * MATLAB uses a well-tuned BLAS
     * NumPy/SciPy - faster if you use (e.g.) Intel MKL
