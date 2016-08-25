@@ -30,6 +30,7 @@ Computer Networking 7th Edition
 
 
 ## Course Introduction:
+
 ### Application layer
 * Web/HTTP
 * HTTP live streaming protocol
