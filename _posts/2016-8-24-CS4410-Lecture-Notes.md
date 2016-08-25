@@ -10,9 +10,9 @@ tags:
 use_math: true
 ---
 
-## Introduction
+# Introduction
 
-#### Course information
+## Course information
 Lecturer: Rachit Agarwal/Anne Bracy.
 
 Course Objectives:
@@ -22,7 +22,7 @@ Course Objectives:
     * Why study operating systems?
     * Course organization.
 
-##### Example 1 - Mars Rover
+### Example 1 - Mars Rover
 * 200MHz processor, 128MB of DRAM, 256MB Flash
 * Cameras, sensors, batteries, Solar Panels, Antennas, ...
 * Unpredictable environment
@@ -32,13 +32,13 @@ Course Objectives:
     * How to avoid/overcome failures?
 * An operating system designed in a principled manner.
 
-##### Example 2 - Self driving cars
+### Example 2 - Self driving cars
 * 150 MacBook Pros in one car.
 * Cameras, sensors, GPS, image recognition, ...
 * Unpredictable environment
     * Same questions.
 
-##### Example 3 - Smart phones
+### Example 3 - Smart phones
 * A8 chipset, 16GB DRAM, ...
 * Camera, sensors, fingerprint device, image recognition, ...
 * Evolving ecosystem of heterogeneous applications.
@@ -46,20 +46,20 @@ Course Objectives:
     * How to run new applications w/o reprogramming?
     * How to secure data (e.g., Apple pay)?
 
-##### Example 4 - Web services (Google, Facebook, ...)
+### Example 4 - Web services (Google, Facebook, ...)
 * A lot of servers. Billions of users.
 * Search, maps, messaging, images, videos,...
 * Heterogeneous applications and heterogeneous users.
     * Same questions.
 
-#### What is an operating system?
+## What is an operating system?
 Software to manage hardware resources.
 
 Applications <-> OS <-> Hardware
 * Virtual machine interface.
 * Physical machine interface.
 
-##### Virtual machine
+### Virtual machine
 Software emulation of an "abstract machine"
 * Illusion of hardware having features one wants
     * E.g., networking (files vs. packets)
@@ -70,7 +70,7 @@ Software emulation of an "abstract machine"
 * More powerful than hardware interface
     * E.g., network failures masked
 
-#### What makes an operating system good?
+## What makes an operating system good?
 Two criteria:
 * Principles
     * Does the design conform to a set of principles?
@@ -85,14 +85,14 @@ Some principles:
 * Portability - Across hardware, applications, ...
 * Fairness - Do applications receive their fair share of resources?
 
-##### Performance
+### Performance
 * Latency - how long does an operation take to complete?
 * Throughput - #operations per unit time.
 * Utilization - fraction of resources used over time.
 * Scalability - how does the performance change with size?
 * Predictabiliity - consistency of an objective over a period of time.
 
-#### Why study operating systems?
+## Why study operating systems?
  * Most widely used OS today are designed in the last decade.
  * Ever-evolving applications
      * Self-driving cars
@@ -103,10 +103,10 @@ Some principles:
      * Memory
      * .......
 
-#### This course - principles and performance
+## This course - principles and performance
 * Design principles (more or less) same across various OS
 * Performance objectives same across various OS.
 * ...
 
-#### Organization
+## Organization
 * Course [http://www.cs.cornell.edu/Courses/cs4410/2016fa/ webpage]
