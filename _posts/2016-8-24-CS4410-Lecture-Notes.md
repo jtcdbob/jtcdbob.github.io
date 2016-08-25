@@ -113,4 +113,4 @@ Some principles:
 * ...
 
 ## Organization
-* Course [http://www.cs.cornell.edu/Courses/cs4410/2016fa/ webpage]
+* Course [webpage](http://www.cs.cornell.edu/Courses/cs4410/2016fa/)
