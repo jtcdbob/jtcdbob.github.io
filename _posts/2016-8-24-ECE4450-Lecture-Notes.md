@@ -10,9 +10,9 @@ tags:
 use_math: true
 ---
 
-## Introduction
+# Introduction
 
-#### Course information
+## Course information
 **Lecturer:** Prof. Stephen Wicker [Email](wicker@ece.cornell.edu)
 
 **Teaching Assistant**
@@ -29,8 +29,8 @@ Computer Networking 7th Edition
 8 Homework (1 can be dropped, no late) ~ 40%
 
 
-#### Course Introduction:
-##### Application layer
+## Course Introduction:
+### Application layer
 * Web/HTTP
 * HTTP live streaming protocol
 * Email
@@ -38,16 +38,16 @@ Computer Networking 7th Edition
 * Ethics module - Grotester/Napster/BitTorrent copyright
 * Application module - VoLTE/VoWiFi/VoIP
 
-##### Transport layer
+### Transport layer
 * Principles of reliable data transmission
 * TCP/UDP/RTP
 
-##### Network layer
+### Network layer
 * Routing protocols
 * Internetworking
 * IP - routing on the internet
 
-##### Data Link layer / MAC sublayer
+### Data Link layer / MAC sublayer
 * Error control coding
 * Multiple Access Techniques
     * ALOHA
@@ -55,26 +55,27 @@ Computer Networking 7th Edition
     * 802.11ac/ax/ay
 * Application Module - Bluetooth
 
-##### Wireless / Mobile Networking
+### Wireless / Mobile Networking
 * 4G / 5G Cellular telephone
 * Mobility management / Resource allocation
 * Application module. IP multimedia (general). VoWiFi <-> VoLTE
 
-##### Network Security - privacy
+### Network Security - privacy
 * Cryptology
 * AKA - Authentication -> key argument
 * RSA
 * Wiretapping / packet sniffing
 * Location data
 
-#### Example
-##### Amazon
+## Example
+### Amazon
 Akamai (CDN).
 Backbone (ISD).
 4G/LTE - WiFi
 See course notes for this.
 
 Key Technologies:
+
 * WAN Technologies
     * TCP/IP
     * GPRS
@@ -82,13 +83,14 @@ Key Technologies:
     * 802.11
     * 802.3
 
-#### Read Chapter 1:
+## Read Chapter 1:
 The concept of
+
 * Protocol. Format and order of messages exchanged between 2 or more entities, actions taken on transmission, receipt, or some other event.
 * Host: Endpoints in a network.
 * Access Networks: dial-up(dead) -> ADSL. Cable. Cellular.
 
-##### Cellular
+### Cellular
 * 1G (1983 - 1990):
     * Brick -> voice/analog -> BS(Base station) -> NTSO(Dead) -> PSTN(public switch telephone network).
     * Acoustic modem to transfer data.
@@ -106,7 +108,7 @@ The concept of
         * HSS - Home Subscriber Server
         * SBC - Session Border Controller
 
-#### ADSL - Asymmetric Digital Subscriber Loop
+## ADSL - Asymmetric Digital Subscriber Loop
 Phone -> Splitter.
 
 MAC - ADSL Modem
