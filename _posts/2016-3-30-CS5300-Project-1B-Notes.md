@@ -104,11 +104,12 @@ reboot-instances
 $$
 1 \le R \le WQ \le W \le N
 $$
-where $$N$$ is number of bricks. $R$ is the read group size and $W$ is the write group size. $WQ$ is the minimum number of bricks that must retrun "success" to the stub before the stub returns to the caller. ($WQ-1$ is the number of simultaneous brick failures that the system can tolerate before potentially losing data.)
 
-A client stub sends read request to $R$ bricks and uses the first response it receives.
+where $$N$$ is number of bricks. $$R$$ is the read group size and $$W$$ is the write group size. $$WQ$$ is the minimum number of bricks that must retrun "success" to the stub before the stub returns to the caller. ($$WQ-1$$ is the number of simultaneous brick failures that the system can tolerate before potentially losing data.)
 
-A client stub sends write request to $W$ bricks and waits for $WQ$ responses, then update the cookie metadata to the set of $WQ$ that respond.
+A client stub sends read request to $$R$$ bricks and uses the first response it receives.
+
+A client stub sends write request to $$W$$ bricks and waits for $$WQ$$ responses, then update the cookie metadata to the set of $WQ$ that respond.
 
 ## 3.4 Server/Session Identifiers and Session Cookies
 
