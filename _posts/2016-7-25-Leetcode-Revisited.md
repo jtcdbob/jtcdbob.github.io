@@ -1857,6 +1857,162 @@ public:
 };
 ```
 
+##### 94. Binary Tree Inorder Traversal
+Use dfs to go through the tree.
+
+```cpp
+vector<int> inorderTraversal(TreeNode* root) {
+    vector<int> results;
+    TreeNode* cur = root;
+    TreeNode* pre = NULL;
+    while (cur != NULL) {
+        if (cur->left != NULL) {
+            pre = cur->left;
+            while (pre->right != NULL && pre->right != cur) {
+                pre = pre->right;
+            }
+            if (pre->right == NULL) {
+                pre->right = cur;
+                cur = cur->left;
+            } else {
+                pre->right = NULL;
+                results.push_back(cur->val);
+                cur = cur->right;
+            }
+        } else {
+            results.push_back(cur->val);
+            cur = cur->right;
+        }
+    }
+    return results;
+}
+```
+
+##### 387. First Unique Character in a String
+Use a map to keep track of all uniquely existing letters in a string, then return the one with smallest index.
+
+```cpp
+int firstUniqChar(string s) {
+    vector<int> mapFirstIndex(26, -2);
+    for (int i = 0; i < s.size(); i++) {
+        const int letter = s[i]-'a';
+        if (mapFirstIndex[letter] == -2) {
+            mapFirstIndex[letter] = i;
+        } else {
+            mapFirstIndex[letter] = -1;
+        }
+    }
+    int minIndex = INT_MAX;
+    for (int i = 0; i < mapFirstIndex.size(); i++) {
+        if (mapFirstIndex[i] > -1) {
+            minIndex = min(minIndex, mapFirstIndex[i]);
+        }
+    }
+    return minIndex < INT_MAX ? minIndex : -1;
+}
+```
+
+##### 388. Longest Absolute File Path
+Keep the length of directory at each level. When a file is found, return the total length from root to the end. Another language with better string parsing library is probably better for this problem.
+
+```cpp
+int lengthLongestPath(string input) {
+    vector<int> folderLength(1, 0);
+    int head = 0;
+    int maxLength = 0;
+    while (head < input.size()) {
+        int tail = head;
+        int tier = 1;
+        bool isFile = false;
+        while (input[tail] != '\n' && tail < input.size()) {
+            if (input[tail] == '\t') tier++;
+            if (input[tail] == '.') isFile = true;
+            tail++;
+        }
+        int pathLength = tail - head - tier + 1;
+        if (isFile) {
+            pathLength += folderLength[tier - 1];
+            maxLength = max(maxLength, pathLength);
+        } else {
+            int folderPathLength = folderLength[tier - 1] + pathLength + 1;
+            if (folderLength.size() < tier + 1) {
+                folderLength.push_back(folderPathLength);
+            } else {
+                folderLength[tier] = folderPathLength;
+            }
+        }
+        head = tail + 1;
+    }
+    return maxLength;
+}
+```
+
+##### 236. Lowest Common Ancestor of a Binary Tree
+Use dfs to go through the tree and find matching nodes. The first node that has two matching nodes in its subtree is the lowest common ancestor. Note that matching node is done by `node1 == node2` not `node1->val == node2->val` because there is no gaurantee on uniqueness of the values.
+
+```cpp
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    lca = NULL;
+    dfsFindNodes(root, p, q);
+    return lca;
+}
+int dfsFindNodes(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (root == NULL) return 0;
+    int numFound = 0;
+
+    int leftFound = dfsFindNodes(root->left, p, q);
+    if (leftFound < 0) return -1;
+    else numFound += leftFound;
+
+    int rightFound = dfsFindNodes(root->right, p, q);
+    if (rightFound < 0) return -1;
+    else numFound += rightFound;
+
+    if (root == p || root == q) numFound++;
+
+    if (numFound == 2) {
+        lca = root;
+        numFound = -1;
+    }
+    return numFound;
+}
+```
+
+A more concise solution from online.
+
+```cpp
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    if (!root || root == p || root == q) return root;
+    TreeNode* left = lowestCommonAncestor(root->left, p, q);
+    TreeNode* right = lowestCommonAncestor(root->right, p, q);
+    return !left ? right : !right ? left : root;
+}
+```
+
+##### 86. Partition List
+Use two dummy heads, go through the list and reorder. Remember to truncate the tail of both lists or the new list may have a loop in itself.
+
+```cpp
+ListNode* partition(ListNode* head, int x) {
+    ListNode *h1 = new ListNode(0), *h2 = new ListNode(0);
+    ListNode *t1 = h1, *t2 = h2;
+    ListNode *tail = head;
+    while (tail) {
+        if (tail->val < x) {
+            t1->next = tail;
+            t1 = t1->next;
+        } else {
+            t2->next = tail;
+            t2 = t2->next;
+        }
+        tail = tail->next;
+    }
+    t2->next = NULL;
+    t1->next = h2->next;
+    return h1->next;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
