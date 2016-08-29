@@ -87,6 +87,6 @@ use_math: true
     * LU factorization: $$PA = LU$$.
     * Cholesky $$A = LL^*$$
     * QR $$A = QR$$
-    * SVD $$A = U\SigmaV^*$$
+    * SVD $$A = U \Sigma V^*$$
     * Eigen decomposition $$A = U\Lambda U^*$$
     * Schur $$A = UTU^*$$
