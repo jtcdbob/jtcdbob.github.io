@@ -82,9 +82,3 @@ Notes on performance for the lazy.
     * OpenBLAS
     * Learn to think in blocks
     * FLOP $$\not =$$ Performance
-
-## 08/29/2016
-### Announcements
-* Shift HW to biweekly (see web)
-* Piazza to be set up today
-* Email Prof. if not enrolled & want HW access (CMS).
