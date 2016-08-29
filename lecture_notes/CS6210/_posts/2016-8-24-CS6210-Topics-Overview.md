@@ -1,5 +1,5 @@
 ---
-title:  "CS6210: Matrix Computations"
+title:  "CS6210: Matrix Computations - Introduction"
 excerpt: "Lecture Notes for CS 6210"
 categories:
   - LectureNotes

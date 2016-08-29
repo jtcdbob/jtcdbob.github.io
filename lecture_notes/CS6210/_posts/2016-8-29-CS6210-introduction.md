@@ -20,7 +20,7 @@ use_math: true
 ### Matrix
 
 * Concrete vector space $$\mathbb{R}^n$$ or $$\mathbb{C}^n$$ (or $$\mathbb{R}^{m\times n}$$ or $$\mathbb{C}^{m\times n}$$)
-* Abstract vector space $$\mathscr{V},~\mathscr{W}$, etc.
+* Abstract vector space $$\mathscr{V},~\mathscr{W}$$, etc.
     * $$\mathscr{P}_d = \{p(z) = \sum_{j=0}^d a_j z^j\}$$, polynomials of degree basis (power basis) for $$\mathbb{P}_d$$ in matrix form.
     * $$V = [1, x, x^2, dots, x^d]$$ "Chebyshev(Tschebycheff)".
         * $$T_m(x) = \cos(ma\cos x),~x\in[-1, 1]$$.
