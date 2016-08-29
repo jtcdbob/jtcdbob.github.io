@@ -29,17 +29,28 @@ use_math: true
         * $$V^{-1}$$ is the matrix inverse or mapping of vector onto expansion coefficients.
 * Duality
     * $$R^{n}$$ is column vectors of length
-    * $$x\in \mathbb{R}^n$ column
+    * $$x\in \mathbb{R}^n$$ column
     * $$x^*$$ row vector (or $$x^T$$, $$x^H$$)
     * $$x^*\in\mathscr{V}^*$$ means linear function on $$\mathscr{V}$$ i.e. $$x^*: \mathscr{V} \to \mathbb{R} (\mathbb{C})$$ linear map.
-* Norms $$||\cdot||: \mathscr{V} \to \mathbb{R}$$.
-    1. Homogenous: $$||\alpha {\bf v}|| = |\alpha|~||\bf v||$$
-    2. Positive definite: $$||{\bf v}|| \ge 0$$, ||\bf v|| = 0 \Rightarrow {\bf v} = {\bf 0}$
-    3. Triangle inequality: $$ \bf ||v + w|| \le || v|| + ||w||$$
+* Norms $$\|\|\cdot\|\|: \mathscr{V} \to \mathbb{R}$$.
+    1. Homogenous: $$\|\|\alpha {\bf v}\|\| = \|\alpha\|~\|\|\bf v\|\|$$
+    2. Positive definite: $$\|\|{\bf v}\|\| \ge 0$$, $$\|\|\bf v\|\| = 0 \Rightarrow {\bf v} = {\bf 0}$$
+    3. Triangle inequality: $$ \bf \|\|v + w\|\| \le \|\| v\|\| + \|\|w\|\|$$
 * Usual suspects
-    * $$||x||_2^2 = x^* x$$
-    * $$||x||_1 = \sum_i |x_i|$$
-    * $$||x||_\inf = \max|x_i|$$
+    * $$\|\|x\|\|_2^2 = x^* x$$
+    * $$\|\|x\|\|_1 = \sum_i \|x_i\|$$
+    * $$\|\|x\|\|_\inf = \max\|x_i\|$$
 * Dual norm:
-    * $$||x^*|| = \max_{||{\bf y}|| = 1} |\bf x^*y||$$
+    * $$\|\|x^*\|\| = \max_{\|\|{\bf y}\|\| = 1} \|\bf x^*y\|\|$$
 * Equivalentce of norms on a finite dimensional space.
+    * For any two norms on the same finite dimensional space, we can bound one norm using the other (though sometimes the bound can be quite loos).
+* Innter Product $$<\cdot, \cdot>: \mathscr{V}\times\mathscr{V} \to \mathbb{C}$
+    1. Linear in first slot $$<\alpha u + v, w> = \alpha<u, w> + <v, w>$$
+    2. Conjugate linear in second slot $$<u, \alpha v + w> = \overline{\alpha}<u, v> + <u, w>$$ & $$<u, v> = \overline{<v, u>}$$
+    3.
+    3. Positive definite $$<v, v> \ge 0$$, equal iff zero. ($$<v,v> = \|\|v,v\|\|_2^2$$)
+    4. Angle between $$u, v$$.
+        $$
+        \cos\theta = \frac{<u, v>}{\|\|u\|\|_2 \|\|v\|\|_2}
+        $$
+    5. 
