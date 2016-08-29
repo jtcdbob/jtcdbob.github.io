@@ -5,3 +5,5 @@
 main:
   - title: "PhotoProject"
     url: /projects/triangle
+  - title: "Shared"
+    url: /shared
