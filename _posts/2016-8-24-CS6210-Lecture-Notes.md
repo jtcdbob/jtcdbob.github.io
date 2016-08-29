@@ -48,7 +48,7 @@ Representation of LA, graphs of matrices, shapes of matrices, representation of 
     * Two loops:
         1. $$\bf y = Ax$$.
         2. Compute
-           
+
             ```
             for i = 1:n
                 for j = 1:n
@@ -56,13 +56,13 @@ Representation of LA, graphs of matrices, shapes of matrices, representation of 
             ```
         3. Total cost: $$2n^2$$ flops (floating point ops), $$o(n^2)$$ time
     * Row oriented.
-        
+
         ```
         for i = 1:n
             y(i) = y(i) + A(i,:)*x(:);
         ```
     * Col oriented
-        
+
         ```
         for j = 1:n
             y = y + A(:,j)*x(j);
@@ -82,3 +82,9 @@ Notes on performance for the lazy.
     * OpenBLAS
     * Learn to think in blocks
     * FLOP $$\not =$$ Performance
+
+## 08/29/2016
+### Announcements
+* Shift HW to biweekly (see web)
+* Piazza to be set up today
+* Email Prof. if not enrolled & want HW access (CMS).
