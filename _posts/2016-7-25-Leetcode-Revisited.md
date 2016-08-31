@@ -2013,6 +2013,50 @@ ListNode* partition(ListNode* head, int x) {
 }
 ```
 
+##### 230. Kth Smallest Element in a BST
+Use in-order traversal to visit the tree nodes and return the kth element visted. The solution is strange - I can't return the value after finding it without getting a runtime error.
+
+```cpp
+int kthSmallest(TreeNode* root, int k) {
+    TreeNode* node = root;
+    TreeNode* tmp = NULL;
+    int counter = 0;
+    int ret = -1;
+    while (node != NULL) {
+        if (node->left != NULL) {
+            tmp = node->left;
+            while (tmp->right != NULL && tmp->right != node) {
+                tmp = tmp->right;
+            }
+            if (tmp->right == node) {
+                tmp->right = NULL;
+                if (++counter == k) ret = node->val;
+                node = node->right;
+            } else {
+                tmp->right = node;
+                node = node->left;
+            }
+        } else {
+            if (++counter == k) ret = node->val;
+            node = node->right;
+        }
+    }
+    return ret;
+}
+```
+
+##### 94. Binary Tree Inorder Traversal
+The same as `230`. Use Morris traversal to visit the tree with o(1) space and o(n) time. This is also doable with a stack - store the current node and then the left node.
+
+##### 284. Peeking Iterator
+Add a new method `peak()` in the subclass and let the compiler do all the work to inherit the rest methods.
+
+```cpp
+int peek() {
+    return Iterator{*this}.next();
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
