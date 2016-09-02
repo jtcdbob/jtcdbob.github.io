@@ -201,11 +201,9 @@ int majorityElement(vector<int>& nums) {
         if (nums[i] == popularElement) {
             counter++;
         }
-        else {
-            if (--counter < 0) {
-                popularElement = nums[i];
-                counter = 1;
-            }
+        else if (--counter < 0) {
+			popularElement = nums[i];
+			counter = 1;
         }
     }
     return popularElement;
@@ -331,15 +329,15 @@ public:
         int left = dfs(root->left, p, q);
         int right = dfs(root->right, p, q);
         if(left < 0 || right < 0) return -1;
-        int nodeFount = 0;
-        if (root->val == p->val) nodeFount += 1;
-        if (root->val == q->val) nodeFount += 1;
-        nodeFount += left + right;
-        if (nodeFount == 2) {
+        int nodeFound = 0;
+        if (root->val == p->val) nodeFound += 1;
+        if (root->val == q->val) nodeFound += 1;
+        nodeFound += left + right;
+        if (nodeFound == 2) {
             lca = root;
-            nodeFount = -1;
+            nodeFound = -1;
         }
-        return nodeFount;
+        return nodeFound;
     }
 };
 ```
@@ -571,7 +569,6 @@ int guessNumber(int n) {
             myLowGuess = myGuess;
         }
         myGuess = (int) (myHighGuess - myLowGuess) / 2 + myLowGuess;
-        cout << myHighGuess << "\t" << myLowGuess << "\t" << myGuess << endl;
         result = guess(myGuess);
     }
     if (guess(myGuess) != 0) return guess(myGuess) > 0 ? myHighGuess : myLowGuess;
@@ -600,7 +597,7 @@ bool dfs(TreeNode* node, const int target, int pathSum) {
 ```
 
 ##### 107. Binary Tree Level Order Traversal II
-Nothing much, just plain bfs traversal. Make sure to keep track of the elements in each level. This can be done by using two queues.
+Nothing much, just plain bfs traversal. Make sure to keep track of the elements in each level. This can be done by using two queues. Alternatively, use a `for` loop each time going into the queue.
 
 ```cpp
 vector<vector<int>> levelOrderBottom(TreeNode* root) {
@@ -1327,7 +1324,7 @@ vector<int> twoSum(vector<int>& nums, int target) {
 ```
 
 ##### 125. Valid Palindrome
-This one is really annoying. There is a nice function `isalnum` to quickly check if a char is letter or number. (I can't believe c++ doesn't have a `to_lower` for strings!)
+This one is really annoying. There is a nice function `isalnum()` to quickly check if a char is letter or number. (I can't believe c++ doesn't have a `to_lower()` for strings!)
 
 ```cpp
 bool isPalindrome(string s) {
