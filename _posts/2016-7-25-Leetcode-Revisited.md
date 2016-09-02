@@ -2057,6 +2057,346 @@ int peek() {
 }
 ```
 
+##### 199. Binary Tree Right Side View
+Use BFS to visit each level and add the last\(rightmost) to the return vector.
+
+```cpp
+vector<int> rightSideView(TreeNode* root) {
+    vector<int> results;
+    queue<TreeNode*> bfsQueue;
+    if (root != NULL) bfsQueue.push(root);
+    while (!bfsQueue.empty()) {
+        int curLevelSize = bfsQueue.size();
+        int tmp;
+        for (int i = 0; i < curLevelSize; i++) {
+            TreeNode* node = bfsQueue.front();
+            tmp = node->val;
+            if (node->left != NULL) bfsQueue.push(node->left);
+            if (node->right != NULL) bfsQueue.push(node->right);
+            bfsQueue.pop();
+        }
+        results.push_back(tmp);
+    }
+    return results;
+}
+```
+
+##### 153. Find Minimum in Rotated Sorted Array
+The trick is to know that even though the array is rotated, its subsequences are still monotonic. Unlike binary search, it has four possible scenarios. List them all and the algorithm is similar to that of binary search.
+
+```cpp
+int findMin(vector<int>& nums) {
+    int l = 0, r = nums.size() - 1;
+    if (nums[r] >= nums[l]) return nums[l];
+    while (l + 1 < r) {
+        int m = (int) (l + r) / 2;
+        if (nums[m] > nums[l]) l = m;
+        else r = m;
+    }
+    return min(nums[l], nums[r]);
+}
+```
+
+##### 62. Unique Paths
+This is a high school math problem. The key is to compute factorial efficiently. Use type `long` to avoid overflow and divide from the smaller element to avoid dividing by nonexistent factors.
+
+```cpp
+int uniquePaths(int m, int n) {
+    long M = max(m - 1, n - 1), N = min(m - 1, n - 1);
+    if (!M | !N) return 1;
+    long prod = 1;
+    for (long i = M + N; i > M; i--) {
+        prod *= i;
+        prod /= (M + N + 1 - i);
+    }
+    return prod;
+}
+```
+
+##### 173. Binary Search Tree Iterator
+This is in-order traversal. Use a stack to do it. The structure will use this algorithm. I believe Morris traversal can be implemented too if wanted.
+
+```cpp
+class BSTIterator {
+private:
+    stack<TreeNode*> inOrderStack;
+public:
+    BSTIterator(TreeNode *root) {
+        TreeNode* tail = root;
+        while (tail != NULL) {
+            inOrderStack.push(tail);
+            tail = tail->left;
+        }
+    }
+
+    /** @return whether we have a next smallest number */
+    bool hasNext() {
+        return !inOrderStack.empty();
+    }
+
+    /** @return the next smallest number */
+    int next() {
+        TreeNode* node = inOrderStack.top();
+        inOrderStack.pop();
+        TreeNode* tail = node->right;
+        while (tail != NULL) {
+            inOrderStack.push(tail);
+            tail = tail->left;
+        }
+        return node->val;
+    }
+};
+```
+
+##### 34. Search for a Range
+I got lazy and called stock function. But essentially it's a bunch of binary search and then find the lower/upper bounds.
+
+```cpp
+vector<int> searchRange(vector<int>& nums, int target) {
+    if (find(nums.begin(), nums.end(), target) == nums.end()) return vector<int> {-1, -1};
+    int l = lower_bound(nums.begin(), nums.end(), target) - nums.begin();
+    int r = upper_bound(nums.begin(), nums.end(), target) - nums.begin() - 1;
+    return vector<int> {l, r};
+}
+```
+
+##### 49. Group Anagrams
+Sort each string and use that as a hash key. Alternatively, one can compute the hash more elegantly \(after all, only 26 letters are used in this case). One idea from online discussion is to multiply prime numbers with individual characters, that will make the hash.
+
+Straightforward one, let `unordered_map` do the hashing for you.
+
+```cpp
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    vector<vector<string>> results;
+    unordered_map<string, int> myMap;
+    for (string str : strs) {
+        string tmp(str);
+        sort(tmp.begin(), tmp.end());
+        if (myMap.find(tmp) != myMap.end()) {
+            results[myMap[tmp]].push_back(str);
+        } else {
+            myMap[tmp] = results.size();
+            results.push_back(vector<string> {str});
+        }
+    }
+    return results;
+}
+```
+
+This one uses prime numbers to hash the string:
+
+```cpp
+class Solution {
+private:
+vector<int> primes = {2, 3, 5, 7, 11 ,13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 107};
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<int,int> map;
+        vector<vector<string> >result;
+        int count=1;
+        for(auto i : strs){
+            int hash = 1;
+//using hash function instead of sort & caching index in map
+            for(int j=0; j < i.size(); ++j){
+                hash *= primes[i[j]-'a'];
+            }
+            if(map[hash] == 0){
+                vector<string> cur(1);
+                cur[0] = i;
+                result.push_back(cur);
+                map[hash] = count++;
+           }
+            else
+            result[map[hash]-1].push_back(i);
+        }
+        return result;
+    }
+};
+```
+
+##### 92. Reverse Linked List II
+
+Use a dummy head and go to \(m-1)th node. Then keep track of the node head in the middle as well as the tail node. Reverse everything in between. Lastly, stitch the middle part with two ends to finish.
+
+```cpp
+ListNode* reverseBetween(ListNode* head, int m, int n) {
+    ListNode* dummyHead = new ListNode(0);
+    dummyHead->next = head;
+
+    ListNode* midHead = dummyHead;
+    for (int i = 0; i < m - 1; i++) midHead = midHead->next;
+    ListNode* midTail = midHead;
+    ListNode* tail = midTail->next;
+    for (int i = m - 1; i < n; i++) {
+        ListNode* tmp = tail->next;
+        tail->next = midTail;
+        midTail = tail;
+        tail = tmp;
+    }
+    midHead->next->next = tail;
+    midHead->next = midTail;
+
+    return dummyHead->next;
+}
+```
+
+
+##### 55. Jump Game
+A typical DP problem. Keep track of the maximum length one can jump and keep adding to it. Once it's impossible to keep going, return false; otherwise, return true at the end.
+
+```cpp
+bool canJump(vector<int>& nums) {
+    int maxLength = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (i > maxLength) return false;
+        maxLength = max(nums[i] + i, maxLength);
+    }
+    return true;
+}
+```
+
+##### 207. Course Schedule
+This is a graph problem. Essentially, one wants to find out whether there exists a loop in the graph. Kahn's algorithm uses DFS to traverse the graph. Use colored node to help implement this algorithm.
+
+My implementation of Kahn's algorithm based on my memory.
+
+```cpp
+bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
+    vector<int> courseList(numCourses, 1); // Node color marker
+    vector<vector<int>> prereqList(numCourses, vector<int> {}); // graph in matrix rep.
+    for (const auto& prereq : prerequisites) {
+        courseList[prereq.second] = 0; // Mark node white if it has exit
+        prereqList[prereq.first].push_back(prereq.second); // Register matrix entries
+    }
+    for (int i = 0; i < numCourses; i++) {
+        // Start from black nodes
+        if (courseList[i]) {
+            stack<int> visitedNodes;
+            visitedNodes.push(i);
+            while (!visitedNodes.empty()) {
+                int curNode = visitedNodes.top();
+                if (courseList[curNode] < 0) return false; // Encountered grey nodes => a loop
+                if (!prereqList[curNode].empty()) {
+                    courseList[curNode] = -1; // Mark grey
+                    visitedNodes.push(prereqList[curNode].back()); // Visit the next prereq
+                    prereqList[curNode].pop_back();
+                } else {
+                    courseList[curNode] = 1; // No more prereq, mark black, finished
+                    visitedNodes.pop(); // Go back
+                    if (!visitedNodes.empty()) courseList[visitedNodes.top()] = 0; // Mark the last one white again
+                }
+            }
+        }
+    }
+    for (int i = 0; i < numCourses; i++) {
+        if (courseList[i] < 1) return false; // Non-black node exists ==> a loop;
+    }
+    return true;
+}
+```
+
+A faster version from online discussion. Similar idea, but instead of tracking individual node, this one just speed through the entire graph and see if all nodes are adequately visited. Very good implementation.
+
+```cpp
+bool canFinish(int numCourses, vector<pair<int, int>>& prerequisites) {
+    vector<vector<int>> graph(numCourses);
+    vector<int> indegree(numCourses,0);
+    for(auto edge : prerequisites) {
+        graph[edge.second].push_back(edge.first);
+        ++indegree[edge.first];
+    }
+    queue<int> Q;
+    for(int i = 0;i < numCourses;i++)
+        if(indegree[i] == 0)
+            Q.push(i);
+    int counter = 0;
+    while(!Q.empty()) {
+        int u = Q.front();
+        Q.pop();
+        ++counter;
+        for(auto v : graph[u]) {
+            if(--indegree[v] == 0)
+                Q.push(v);
+        }
+    }
+    return counter == numCourses;
+}
+```
+
+##### 373. Find K Pairs with Smallest Sums
+Use minStack to get the kth smallest pair. Alternatively, you can get all the pairs and sort them. My minStack implementation is even slower than the sort version. Not clear what I did wrong on a language level. Here is a version from online discussion that is better (lots of new tricks here too):
+
+```cpp
+vector<pair<int, int>> kSmallestPairs(vector<int> & nums1, vector<int> & nums2, int k) {
+    vector<pair<int,int>> v;
+    if(nums1.empty() || nums2.empty()) return v;
+    auto cmp = [&nums1, &nums2](const pair<int, int> & a, const pair<int, int> &b) {
+        return nums1[a.first]+nums2[a.second] > nums1[b.first]+nums2[b.second]; };
+    priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(cmp)> minHeap(cmp);
+    minHeap.emplace(0, 0);
+    while(minHeap.size() && k--) {
+        auto t = minHeap.top(); minHeap.pop();
+        v.emplace_back(nums1[t.first], nums2[t.second]);
+        if(t.first < nums1.size()-1) minHeap.emplace(t.first + 1, t.second);
+        if(t.first == 0 && t.second < nums2.size() - 1) minHeap.emplace(t.first, t.second + 1);
+    }
+    return v;
+}
+```
+
+##### 187. Repeated DNA Sequences
+The idea is to find a quick way to keep track of the DNA sequence of length 10. A nice hash function will do this fast. Alternatively, use a hashset and let it do the hash for you. This implementation is from online discussion that uses bit manipulation to do the hash dirty fast. Note that there are only four letters, so it's just actually hashing four elements in combination.
+
+Side note on the hash using bit manipulation. As discussed, it is really not that many elements that are different ("A, C, G, T"), and someone discovered that they have two bits that are distinct, so they did some bit manipulation to get that out fast. The same can be done using a swtich statement to change char to int (it will do the same with minor performance hit).
+
+```cpp
+vector<string> findRepeatedDnaSequences(string s) {
+    char flag[262144] ={0};
+    vector<string> result;
+    int len,DNA=0,i;
+    if((len=s.length()) < 11) return result;
+    for(i = 0 ; i < 9; i++)
+        DNA = DNA << 2 | (s[i] - 'A' + 1) % 5;
+    for(i = 9; i < len; i++) {
+        DNA = (DNA << 2 & 0xFFFFF)|(s[i] - 'A' + 1) % 5;
+            if(!(flag[DNA >> 2] & (1 << ((DNA & 3) << 1))))
+                flag[DNA >> 2] | = (1 << ((DNA & 3) << 1));
+            else if(!(flag[DNA >> 2] & (2 << ((DNA & 3) << 1)))) {
+                result.push_back(s.substr(i - 9, 10));
+                flag[DNA >> 2] |= (2 << ((DNA & 3) << 1));
+            }
+    }
+    return result;
+}
+```
+
+##### 17. Letter Combinations of a Phone Numbe
+Really nothing here. List all and add to the existing combo.
+
+```cpp
+class Solution {
+private:
+    vector<string> numToChar = {" ", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+public:
+    vector<string> letterCombinations(string digits) {
+        if (digits.empty()) return vector<string> {};
+        vector<string> results = {""};
+        for (int i = 0; i < digits.size(); i++) {
+            int num = digits[i] - '0';
+            vector<string> tmp;
+            string newStr = numToChar[num];
+            for (const char& c : newStr) {
+                for (string s : results) {
+                    tmp.push_back(s.append(1, c));
+                }
+            }
+            results.swap(tmp);
+        }
+        return results;
+    }
+};
+```
+
 ## Hard
 
 ##### 146. LRU Cache

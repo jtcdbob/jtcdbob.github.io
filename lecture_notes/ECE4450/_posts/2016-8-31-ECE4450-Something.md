@@ -134,3 +134,5 @@ Host - database:
 
 * Host creates and stores a cookie ID
 * Generate cookie-specific response
+
+Cookie-synchronization
