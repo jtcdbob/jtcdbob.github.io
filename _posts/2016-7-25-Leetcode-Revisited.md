@@ -1,4 +1,4 @@
----
+    ---
 title:  "Leetcode Revisted"
 excerpt: "Notes for working on Revisiting leetcode"
 categories:
@@ -2394,6 +2394,207 @@ public:
 };
 ```
 
+##### 392. Is Subsequence
+Keep a pointer to the last matched letter in string s and move the pointer to the right while going through the string t. If the pointer reaches the end, there exists a subsequence, otherwise not.
+
+```cpp
+bool isSubsequence(string s, string t) {
+    if (s.empty()) return true;
+    int i = 0, j = 0;
+    while (i < s.size() && j < t.size()) {
+        if (s[i] == t[j++]) i++;
+    }
+    return i == s.size();
+}
+```
+
+##### 328. Odd Even Linked List
+Use two dummy heads to do it. Make sure to terminate the even node after the last one. If the list has odd number of nodes, there is a chance for inifinite loop if the tail is not properly cut.
+
+```cpp
+ListNode* oddEvenList(ListNode* head) {
+    ListNode *oHead = new ListNode(0);
+    ListNode *eHead = new ListNode(0);
+    ListNode *oTail = oHead, *eTail = eHead;
+    ListNode *tail = head;
+    while(tail != NULL) {
+        oTail->next = tail;
+        oTail = oTail->next;
+        tail = tail->next;
+        eTail->next = tail;
+        eTail = eTail->next;
+        if (tail != NULL) tail = tail->next;
+    }
+    oTail->next = eHead->next;
+    return oHead->next;
+}
+```
+
+##### 377. Combination Sum IV
+Use dynamic programming for this problem.
+
+```cpp
+int combinationSum4(vector<int>& nums, int target) {
+    vector<int> dpArray(target + 1, 0);
+    dpArray[0] = 1;
+    sort(nums.begin(), nums.end());
+    for(int i = 1; i < dpArray.size(); i++) {
+        int dpSum = 0;
+        for(int j = 0; j < nums.size(); j++) {
+            if ((i - nums[j]) < 0) break;
+            else dpSum += dpArray[i - nums[j]];
+        }
+        dpArray[i] = dpSum;
+    }
+    return dpArray.back();
+}
+```
+
+##### 337. House Robber III
+Use dfs to traverse the tree and have a dynamic programming backbone to the algorithm.
+
+```cpp
+int rob(TreeNode* root) {
+    if (root == NULL) return 0;
+    int maxProf1 = rob(root->left) + rob(root->right);
+    int maxProf2 = root->val;
+    maxProf2 += getChildrenSum(root->left);
+    maxProf2 += getChildrenSum(root->right);
+    root->val = max(maxProf1, maxProf2);
+    return root->val;
+}
+
+/* Helper function */
+int getChildrenSum(TreeNode* node) {
+    int sum = 0;
+    if (node != NULL) {
+        if (node->left != NULL) sum += node->left->val;
+        if (node->right != NULL) sum += node->right->val;
+    }
+    return sum;
+}
+```
+
+##### 167. Two Sum II - Input array is sorted
+Move from left and right ends and find the target. This is a linear method with constant space. Tried binary search, but it's too annoying.
+
+```cpp
+vector<int> twoSum(vector<int>& numbers, int target) {
+    int l = 0, r = numbers.size() - 1;
+    while(l < r) {
+        int sum = numbers[l] + numbers[r];
+        if(sum > target) r--;
+        else if (sum < target) l++;
+        else return vector<int> {l + 1, r + 1};
+    }
+    return vector<int> {};
+}
+```
+
+##### 260. Single Number III
+Sort, I'm not patient with bit operations.
+
+```cpp
+vector<int> singleNumber(vector<int>& nums) {
+    vector<int> res;
+    sort(nums.begin(), nums.end());
+    for(int i = 0; i < nums.size();) {
+        if (i + 1 >= nums.size()) res.push_back(nums[i++]);
+        else if (nums[i] != nums[i + 1]) res.push_back(nums[i++]);
+        else i += 2;
+    }
+    return res;
+}
+```
+
+For reference, this is a solution with bit operation:
+
+```cpp
+vector<int> singleNumber(vector<int>& nums) {
+    int aXorb = 0;  // the result of a xor b;
+    for (auto item : nums) aXorb ^= item;
+    int lastBit = (aXorb & (aXorb - 1)) ^ aXorb;  // the last bit that a diffs b
+    int intA = 0, intB = 0;
+    for (auto item : nums) {
+        // based on the last bit, group the items into groupA(include a) and groupB
+        if (item & lastBit) intA = intA ^ item;
+        else intB = intB ^ item;
+    }
+    return vector<int>{intA, intB};
+}
+```
+
+##### 318. Maximum Product of Word Lengths
+We want quick comparision of two strings for the same letters used. Use a bit map to do it quickly.
+
+```cpp
+int maxProduct(vector<string>& words) {
+    vector<int> flagArray(words.size(), 0);
+    int N = words.size();
+    for (int i = 0; i < N; i++) {
+        for (char l : words[i]) {
+            flagArray[i] |= (1 << (l - 'a'));
+        }
+    }
+    int maxSize = 0;
+    for (int i = 0; i < N; i++) {
+        int a = words[i].size();
+        for (int j = i + 1; j < N; j++) {
+            if (!(flagArray[i] & flagArray[j])) {
+                int b = words[j].size();
+                maxSize = max(maxSize, a * b);
+            }
+        }
+    }
+    return maxSize;
+}
+```
+
+##### 382. Linked List Random Node
+Use [reservoir sampling](https://en.wikipedia.org/wiki/Reservoir_samplin) technique for the algorithm.
+
+```cpp
+class Solution {
+private:
+    ListNode* head;
+public:
+    Solution(ListNode* head) {
+        this->head = head;
+    }
+    int getRandom() {
+        int count = 1;
+        ListNode* tail = head;
+        int res=0;
+        while(tail != NULL) {
+            int n = rand() % count;
+            if(n==0) res = tail->val;
+            tail = tail->next;
+            count++;
+        }
+        return res;
+    }
+};
+```
+##### 114. Flatten Binary Tree to Linked List
+Traverse the tree using a stack for dfs.
+
+```cpp
+void flatten(TreeNode* root) {
+    stack<TreeNode*> dfsStack;
+    TreeNode* tail = new TreeNode(0);
+    if (root != NULL) dfsStack.push(root);
+    while (!dfsStack.empty()) {
+        TreeNode* tmp = dfsStack.top();
+        dfsStack.pop();
+        if (tmp->right != NULL) dfsStack.push(tmp->right);
+        if (tmp->left != NULL) dfsStack.push(tmp->left);
+        tail->left = NULL;
+        tail->right = tmp;
+        tail = tail->right;
+    }
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
@@ -2437,3 +2638,5 @@ public:
     }
 };
 ```
+
+#####
