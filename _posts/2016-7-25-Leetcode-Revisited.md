@@ -1,4 +1,4 @@
-    ---
+---
 title:  "Leetcode Revisted"
 excerpt: "Notes for working on Revisiting leetcode"
 categories:
@@ -2575,6 +2575,7 @@ public:
     }
 };
 ```
+
 ##### 114. Flatten Binary Tree to Linked List
 Traverse the tree using a stack for dfs.
 
@@ -2638,5 +2639,3 @@ public:
     }
 };
 ```
-
-#####
