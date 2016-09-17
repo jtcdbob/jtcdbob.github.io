@@ -2596,6 +2596,251 @@ void flatten(TreeNode* root) {
 }
 ```
 
+##### 200. Number of Islands
+Use the recursive method to label every visited island. Note that this is not an efficient approach. A more sophisticated method will use one sweep to label points and then associate the points with groups before taking a second pass to relabel the points in groups. In this case, the second pass is not needed because we only care about the total number.
+
+```cpp
+int numIslands(vector<vector<char>>& grid) {
+    int count = 0;
+    for (int i = 0; i < grid.size(); i++) {
+        for (int j = 0; j < grid[0].size(); j++) {
+            count += dfsLabel(grid, i, j);
+        }
+    }
+    return count;
+}
+int dfsLabel(vector<vector<char>>& grid, int x, int y) {
+    if (grid[x][y] == '0') return 0;
+    grid[x][y] ='0';
+    if (x < grid.size() - 1) dfsLabel(grid, x + 1, y);
+    if (y < grid[0].size() - 1) dfsLabel(grid, x, y + 1);
+    if (x > 0) dfsLabel(grid, x - 1, y);
+    if (y > 0) dfsLabel(grid, x, y - 1);
+    return 1;
+}
+```
+
+##### 22. Generate Parentheses
+Use recursion, end when there are no more parenthesis to add and then push back the generated string to the result vector.
+
+```cpp
+class Solution {
+    vector<string> result;
+public:
+    vector<string> generateParenthesis(int n) {
+        string s = "";
+        addPar(s, n, n);
+        return result;
+    }
+    void addPar(string str, int l, int r) {
+        if (l > r) return;
+        if (!l && !r) result.push_back(str);
+        else {
+            if (l > 0) addPar(str + "(", l - 1, r);
+            if (r > 0) addPar(str + ")", l, r - 1);
+        }
+    }
+};
+```
+
+##### 108. Convert Sorted Array to Binary Search Tree
+It is similar to the idea of merge sort (divide and conquer?). Split the sorted array into two and then build a tree using that.
+
+```cpp
+TreeNode* sortedArrayToBST(vector<int>& nums) {
+    return recursiveBuild(nums, 0, nums.size());
+}
+TreeNode* recursiveBuild(vector<int>& nums, int l, int r) {
+    if (l >= r) return NULL;
+    int m = floor((l + r) / 2);
+    TreeNode* root = new TreeNode(nums[m]);
+    root->left = recursiveBuild(nums, l, m);
+    root->right = recursiveBuild(nums, m + 1, r);
+    return root;
+}
+```
+
+##### 96. Unique Binary Search Trees
+This is more of a math problem then a programming one. Note that when there are $$n$$ numbers, if $$k$$ is the root, there are $$k-1$$ possible combination in its left tree and $$n-k$$ possibilities in its right tree. So the total number of combination for $$n$$ numbers is the sum $$\sum_{i=0}^n A(i - 1) A(n - i)$$. Knowing this, it is easy to come up with a dynamic programming model to solve the problem.
+
+```cpp
+int numTrees(int n) {
+    if (n < 1) return 0;
+    vector<int> dpArray(n + 1, 1);
+    for (int i = 2; i < n + 1; i++) {
+        int combo = 0;
+        for (int j = 0; j < i; j++) {
+            combo += dpArray[j] * dpArray[i - j - 1];
+        }
+        dpArray[i] = combo;
+    }
+    return dpArray.back();
+}
+```
+
+##### 394. Decode String
+Be systematic with the decoding. C++ is unlikely the best language to do this kind of string manipulation.
+
+```cpp
+string decodeString(string s) {
+    int l = 0;
+    string decodedStr = "";
+    while(l < s.size()) {
+        if (s[l] <= '9' && s[l] >= '0') decodedStr += decode(s, l);
+        else decodedStr += s[l++];
+    }
+    return decodedStr;
+}
+
+string decode(const string& s, int &l) {
+    int r = l;
+    int n;
+    string subStr, ret;
+    // Get repetition number
+    while (s[r] <= '9' && s[r] >= '0') r++;
+    n = stoi(s.substr(l, r++));
+    // Get substring enclosed by []
+    while(s[r] != ']') {
+        if (s[r] <= '9' && s[r] >= '0') subStr += decode(s, r);
+        else subStr += s[r++];
+    }
+    // Make new substring for return;
+    for (int i = 0; i < n; i++) ret += subStr;
+    // Update l
+    l = ++r;
+    return ret;
+}
+```
+
+##### 309. Best Time to Buy and Sell Stock with Cooldown
+Dynamic programming. Before selling, always compare it to possible outcome when not doing any sale. A naive implementation:
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    vector<int> dpMaxArrayVal(prices.size(), 0);
+    vector<int> dpMaxArrayHold(prices.size(), 0);
+    dpMaxArrayVal[1] = max(0, prices[1] - prices[0]);
+    for (int i = 2; i < prices.size(); i++) {
+        int curPrice = prices[i];
+        int maxDif = 0;
+        for (int j = 0; j < i; j++) {
+            maxDif = max(maxDif, curPrice - prices[j] + dpMaxArrayHold[j]);
+        }
+        dpMaxArrayVal[i] = max(maxDif, dpMaxArrayVal[i - 1]);
+        dpMaxArrayHold[i] = dpMaxArrayVal[i - 2];
+    }
+    return dpMaxArrayVal.back();
+}
+```
+
+Someone online took another step and used four `int` to deal with the dynamic model and eliminated space and time waste (note this is a linear algorithm):
+
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    int buy(INT_MIN), sell(0), prev_sell(0), prev_buy;
+    for (int price : prices) {
+        prev_buy = buy;
+        buy = max(prev_sell - price, buy);
+        prev_sell = sell;
+        sell = max(prev_buy + price, sell);
+    }
+return sell;
+```
+
+##### 216. Combination Sum III
+Use dynamic programming to do this. For n, it can only increase numbers in n-1 results. Make sure to eliminate the duplicate before moving on.
+
+```cpp
+vector<vector<int>> combinationSum3(int k, int n) {
+    // Filter out some impossible inputs
+    const int LOW = k * (k + 1) / 2;
+    if (n < LOW) return vector<vector<int>>{};
+
+    // Initialize DP
+    vector<int> base = vector<int> (k);
+    for (int i = 0; i < k; i++) base[i] = i + 1;
+    vector<vector<int>> collection = {base};
+
+    // DP body
+    for (int i = LOW; i < n; i++) {
+        vector<vector<int>> new_collection;
+        for (vector<int> comb : collection) {
+            for (int j = 0; j < k - 1; j++) {
+                vector<int> tmp = comb;
+                if (tmp[j] + 1 < tmp[j + 1]) {
+                    tmp[j]++;
+                    new_collection.push_back(tmp);
+                }
+            }
+            if (++comb[k - 1] < 10) new_collection.push_back(comb);
+        }
+        // Remove duplicate results
+        swap(collection, new_collection);
+        sort(collection.begin(), collection.end());
+        collection.erase(unique(collection.begin(), collection.end()), collection.end());
+    }
+    return collection;
+}
+```
+
+##### 137. Single Number II
+Not very interested, sort.
+
+```cpp
+int singleNumber(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+    int l = 0;
+    while (l < nums.size()) {
+        if (l + 1 < nums.size() && l + 2 < nums.size()) {
+            if (nums[l] != nums[l + 1] || nums[l] != nums[l + 2]) return nums[l];
+        } else return nums[l];
+        l += 3;
+    }
+    return -1;
+}
+```
+
+A "real" solution and a discussion on a [generic solution](https://discuss.leetcode.com/topic/22821/an-general-way-to-handle-all-this-sort-of-questions/2) to all these problems:
+
+```cpp
+int singleNumber(vector<int>& nums) {
+    int ones = 0, twos = 0;
+    for(int i = 0; i < nums.size(); i++){
+        ones = (ones ^ nums[i]) & ~twos;
+        twos = (twos ^ nums[i]) & ~ones;
+    }
+    return ones;
+}
+```
+
+##### 241. Different Ways to Add Parentheses
+Pretty annoying problem. Didn't get to finish the code. Here is one from online discussion:
+
+```cpp
+vector<int> diffWaysToCompute(string input) {
+    if(input.size() ==0) return {};
+    vector<int> result;
+    for(int i = 0; i < input.size(); i++)
+    {
+        if(input[i]!='+' &&input[i]!= '-' &&input[i]!= '*') continue;
+        auto vec1 = diffWaysToCompute(input.substr(0, i));
+        auto vec2 = diffWaysToCompute(input.substr(i+1));
+        for(auto val1: vec1)
+        {
+            for(auto val2: vec2)
+            {
+                if(input[i]=='+') result.push_back(val1+ val2);
+                else if(input[i]=='-') result.push_back(val1 - val2);
+                else if(input[i]== '*') result.push_back(val1 * val2);
+            }
+        }
+    }
+    return result.empty()?vector<int>{stoi(input)}:result;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
