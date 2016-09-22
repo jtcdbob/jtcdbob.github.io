@@ -2841,6 +2841,232 @@ vector<int> diffWaysToCompute(string input) {
 }
 ```
 
+##### 116. Populating Next Right Pointers in Each Node
+
+Use BFS to level traverse the tree and link the nodes.
+
+```cpp
+void connect(TreeLinkNode *root) {
+    queue<TreeLinkNode*> bfsQueue;
+    if (root != NULL) bfsQueue.push(root);
+    while (!bfsQueue.empty()) {
+        int N = bfsQueue.size();
+        TreeLinkNode* tmpNode;
+        for (int i = 0; i < N; i++) {
+            tmpNode = bfsQueue.front();
+            if (tmpNode->left != NULL) bfsQueue.push(tmpNode->left);
+            if (tmpNode->right != NULL) bfsQueue.push(tmpNode->right);
+            bfsQueue.pop();
+            if (!bfsQueue.empty()) tmpNode->next = bfsQueue.front();
+        }
+        tmpNode->next = NULL;
+    }
+}
+```
+
+##### 334. Increasing Triplet Subsequence
+
+One sweep forward and one sweep backward. The problem with one sweep is to have a barrier that makes the current min/max value too small/large thus blocking the chance to detect possible longer subsequences. Two sweeps overcome this problem.
+
+```cpp
+bool increasingTriplet(vector<int>& nums) {
+    int curMin = INT_MIN;
+    int counter = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (nums[i] > curMin) {
+            curMin = nums[i];
+            if (++counter > 2) return true;
+        }
+    }
+
+    int curMax = INT_MAX;
+    counter = 0;
+    for (int i = nums.size() - 1; i > -1 ; i--) {
+        if (nums[i] < curMax) {
+            curMax = nums[i];
+            if (++counter > 2) return true;
+        }
+    }
+
+    return false;
+}
+```
+
+##### 240. Search a 2D Matrix II
+
+Start from right corner and search (diagonally).
+
+```cpp
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    if (matrix.empty()) return false;
+    int M = matrix.size();
+    int N = matrix[0].size();
+
+    int i = 0, j = N - 1;
+    while (i < M && j > -1) {
+        int curElem = matrix[i][j];
+        if (target > curElem) i++;
+        else if (target < curElem) j--;
+        else return true;
+    }
+    return false;
+}
+```
+
+##### 53. Maximum Subarray
+
+Use a partial sum to keep track of largest connected sum so far. Update maximum whenever the partial sum gets updated/reset.
+
+```cpp
+int maxSubArray(vector<int>& nums) {
+    int curMax = INT_MIN;
+    int partialSum = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (nums[i] + partialSum >= 0) {
+            partialSum += nums[i];
+            curMax = max(curMax, partialSum);
+        } else {
+            partialSum = 0;
+            curMax = max(curMax, nums[i]);
+        }
+    }
+    return curMax;
+}
+```
+
+##### 367. Valid Perfect Square
+`sqrt()`, I don't care. OK, if done properly, a number is a perfect square iff it consists of the sum of consecutive odd numbers.
+
+```cpp
+bool isPerfectSquare(int num) {
+    double sq = sqrt(num);
+    return sq == floor(sq);
+}
+```
+
+"Better" solution from online discussion:
+
+```cpp
+bool isPerfectSquare(int num) {
+    int e = 1;
+    while(num > 0) {
+        num -= e;
+        e += 2;
+    }
+    return num == 0;
+}
+```
+
+##### 179. Largest Number
+Order the number and then concatenate them to get the largest number. Important note when two numbers have the same initial sequences. Just compare the result of them in sequence. Once the comparator is defined, do a sort and then concatenate.
+
+```cpp
+string largestNumber(vector<int>& nums) {
+    vector<string> numsStr(nums.size());
+    for (int i = 0; i < nums.size(); i++) numsStr[i] = to_string(nums[i]);
+    sort(numsStr.begin(), numsStr.end(), strCmp);
+
+    if (!numsStr.empty() && numsStr[0] == "0") return "0";
+    string ret;
+    for (int i = 0; i < nums.size(); i++) ret += numsStr[i];
+    return ret;
+}
+```
+
+##### 89. Gray Code
+
+Find the pattern. Write out the first few `n`'s and get a feeling for what to look for. The code is sort of a verbatim translation of the algorithm.
+
+```cpp
+vector<int> grayCode(int n) {
+    vector<int> results;
+    if (n == 0) return vector<int> {0};
+    else if (n > 0) {
+        results = grayCode(n-1);
+        vector<int> tmp(results.rbegin(), results.rend());
+        int bitChangeAt = (1 << (n - 1));
+        for (int i = 0; i < tmp.size(); i++) {
+            tmp[i] ^= bitChangeAt;
+        }
+        results.insert(results.end(), tmp.begin(), tmp.end());
+    }
+    return results;
+}
+```
+
+##### 59. Spiral Matrix II
+
+I'm doing it the dumb way. Just iterate through the matrix in a spiral.
+
+```cpp
+vector<vector<int>> generateMatrix(int n) {
+    vector<int> innerTmp(n, 0);
+    vector<vector<int>> retMatrix(n, innerTmp);
+    int counter = 0;
+    int l = 0, r = n, u = 0, d = n;
+    while (counter < n*n) {
+        for (int i = l; i < r; i++) retMatrix[u][i] = ++counter;
+        u++;
+        if (counter < n*n) {
+            for (int i = u; i < d; i++) retMatrix[i][r - 1] = ++counter;
+            r--;
+        } else break;
+        if (counter < n*n) {
+            for (int i = r - 1; i > l - 1; i--) retMatrix[d - 1][i] = ++counter;
+            d--;
+        }
+        if (counter < n*n) {
+            for (int i = d - 1; i > u - 1; i--) retMatrix[i][l] = ++counter;
+            l++;
+        }
+    }
+    return retMatrix;
+}
+```
+
+##### 35. Search Insert Position
+Just call `lower_bound()`, no reason to skip the function call if it can be easily included. Worst case do a binary search.
+
+```cpp
+int searchInsert(vector<int>& nums, int target) {
+    return lower_bound(nums.begin(), nums.end(), target) - nums.begin();
+}
+```
+
+##### 46. Permutations
+Again, call a function to do the dirty work for you. I believe there is a dirtier way to do it by examining numbers from the tail (see the other post for code), but I'm not going over it again.
+
+```cpp
+vector<vector<int>> permute(vector<int>& nums) {
+    vector<vector<int>> results;
+    sort(nums.begin(), nums.end());
+    do {
+        results.push_back(nums);
+    } while (next_permutation(nums.begin(), nums.end()));
+    return results;
+}
+```
+
+##### 77. Combinations
+The benefit of having a clean function to do the dirty work for you. Just keep track of indices for elements that you want to take to form a combination. This will take the least time.
+
+```cpp
+vector<vector<int>> combine(int n, int k) {
+    vector<vector<int>> results;
+    vector<int> numVec(n, 0);
+    vector<int> selectVec(n, 0);
+    for (int i = 0; i < n; i++) numVec[i] = i + 1;
+    for (int i = n - k; i < n; i++) selectVec[i] = 1;
+    do {
+        vector<int> tmp(k, 0);
+        int counter = 0;
+        for (int i = 0; i < n; i++) if (selectVec[i]) tmp[counter++] = numVec[i];
+        results.push_back(tmp);
+    } while (next_permutation(selectVec.begin(), selectVec.end()));
+    return results;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
@@ -2883,4 +3109,24 @@ public:
         }
     }
 };
+```
+
+##### 174. Dungeon Game
+Dynamic programming to keep track of maximum health needed. It took me a while because I was starting from the beginning, but apparently back tracking is more appropriate in this case. I implemented the code after reviewing some discussions online.
+
+```cpp
+int calculateMinimumHP(vector<vector<int>>& dungeon) {
+    if (dungeon.empty() || dungeon[0].empty()) return 1;
+    int M = dungeon.size();
+    int N = dungeon[0].size();
+    for (int i = M - 1; i > -1; i--) {
+        for (int j = N - 1; j > -1; j--) {
+            int tmp = INT_MAX;
+            if (i < M - 1) tmp = min(tmp, dungeon[i + 1][j]);
+            if (j < N - 1) tmp = min(tmp, dungeon[i][j + 1]);
+            dungeon[i][j] = max(1, (tmp == INT_MAX ? 1 : tmp) - dungeon[i][j]);
+        }
+    }
+    return dungeon[0][0];
+}
 ```
