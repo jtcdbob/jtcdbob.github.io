@@ -3067,6 +3067,296 @@ vector<vector<int>> combine(int n, int k) {
 }
 ```
 
+##### 64. Minimum Path Sum
+
+It is like the dungeon game (174), but easier. Just dp save all the minimum till the end.
+
+```cpp
+int minPathSum(vector<vector<int>>& grid) {
+    if (grid.empty() || grid[0].empty()) return 0;
+    int M = grid.size();
+    int N = grid[0].size();
+
+    for (int i = 1; i < M; i++) grid[i][0] += grid[i - 1][0];
+    for (int j = 1; j < N; j++) grid[0][j] += grid[0][j - 1];
+
+    for (int i = 1; i < M; i++) {
+        for (int j = 1; j < N; j++) {
+            grid[i][j] += min(grid[i - 1][j], grid[i][j - 1]);
+        }
+    }
+
+    return grid[M - 1][N - 1];
+}
+```
+
+##### 48. Rotate Image
+Do it in place by swapping the four elements in the "corner".
+
+```cpp
+void rotate(vector<vector<int>>& matrix) {
+    int N = matrix.size();
+    int l = 0, u = 0, r = N, d = N;
+    while (l < r) {
+        for (int i = 0; i < r - l - 1; i++) {
+            int tmp = matrix[u][l+i];
+            matrix[u][l+i]     = matrix[d-i-1][l];
+            matrix[d-i-1][l]   = matrix[d-1][r-1-i];
+            matrix[d-1][r-1-i] = matrix[u+i][r-1];
+            matrix[u+i][r-1]   = tmp;
+        }
+        l++; u++; r--; d--;
+    }
+}
+```
+
+##### 39. Combination Sum
+DFS will proper pruning will do nicely. Make sure sort the array because it is not gauranteed.
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> results;
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        dfsFillResults(candidates, 0, target, vector<int> {});
+        return results;
+    }
+
+    void dfsFillResults(const vector<int>& candidates, const int l, int target, vector<int> combo) {
+        if (target < 0) return;
+        else if (target == 0 && !combo.empty()) results.push_back(combo);
+        if (l < candidates.size()) {
+            if (candidates[l] > target) return;
+            int candidate = candidates[l];
+            while (target >= 0) {
+                dfsFillResults(candidates, l + 1, target, combo);
+                combo.push_back(candidate);
+                target -= candidate;
+            }
+        }
+    }
+};
+```
+
+##### 75. Sort Colors
+Bucket sort.
+
+```cpp
+void sortColors(vector<int>& nums) {
+    vector<int> bucketCounter(3, 0);
+    for (int num : nums) bucketCounter[num]++;
+    int color = 0;
+    int i = 0;
+    for (int count : bucketCounter) {
+        for (int j = 0; j < count; j++) {
+            nums[i++] = color;
+        }
+        color++;
+    }
+}
+```
+
+##### 215. Kth Largest Element in an Array
+I used a heap of size `k`, but it is not the fastest method.
+
+```cpp
+int findKthLargest(vector<int>& nums, int k) {
+    priority_queue<int, vector<int>, greater<int>> pQueue;
+    for (int num : nums) {
+        pQueue.push(num);
+        if (pQueue.size() > k) pQueue.pop();
+    }
+    return pQueue.top();
+}
+```
+
+Quick select will yield a faster result (solution from online discussion):
+
+```cpp
+class Solution {
+private:
+    int partition (vector<int>& nums, int left, int right) {
+        swap(nums[left], nums[left + random() % (right - left + 1)]);   // randomly choose a pivot and put it on left position
+        int pivot = nums[left], slow = left + 1, fast = left + 1;       // use two pointers to partition: slow and fast
+
+        while (fast <= right) {
+            if (pivot < nums[fast]) {
+                swap(nums[slow++], nums[fast]);
+            }
+            fast++;
+        }
+
+        swap(nums[left], nums[--slow]);                                 // position pivot
+        return slow;                                                    // return pivot position
+    }
+
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        int l = 0, r = nums.size() - 1;
+        k--;
+
+        while (l <= r) {
+            int n = partition(nums, l, r);
+
+            if (n == k) { return nums[n]; }
+            if (n < k) {
+                l = n + 1;
+            } else {
+                r = n - 1;
+            }
+        }
+        return -1;
+    }
+};
+```
+
+Using C++ function, the method is like
+
+```cpp
+int findKthLargest(vector<int>& nums, int k) {
+    nth_element(nums.begin(), nums.begin() + k - 1, nums.end(), greater<int>());
+    return nums[k - 1];
+}
+```
+
+##### 78. Subsets
+Nothing interesting about this one, just find the pattern and add the array to the results.
+
+```cpp
+vector<vector<int>> subsets(vector<int>& nums) {
+    vector<vector<int>> combo = vector<vector<int>> {vector<int> {}};
+    for (int num : nums) {
+        vector<vector<int>> tmp;
+        for (vector<int> c : combo) {
+            c.push_back(num);
+            tmp.push_back(c);
+        }
+        combo.insert(combo.end(), tmp.begin(), tmp.end());
+    }
+    return combo;
+}
+```
+
+##### 74. Search a 2D Matrix
+Isn't this the same as before?
+
+```cpp
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    if (matrix.empty()) return false;
+    int i = 0, j = matrix[0].size() - 1;
+    while (i < matrix.size() && j > -1) {
+        if (matrix[i][j] < target) i++;
+        else if (matrix[i][j] > target) j--;
+        else return true;
+    }
+    return false;
+}
+```
+
+##### 129. Sum Root to Leaf Numbers
+
+Get all the numbers using dfs and then add them up.
+
+```cpp
+class Solution {
+private:
+    vector<int> allNums;
+public:
+    int sumNumbers(TreeNode* root) {
+        dfsFindNums(root, "");
+        int sum = 0;
+        for (int num : allNums) sum += num;
+        return sum;
+    }
+    void dfsFindNums(TreeNode* node, string numStr) {
+        if (node == NULL) return;
+        numStr += to_string(node->val);
+        if (node->left == NULL && node->right == NULL) allNums.push_back(stoi(numStr));
+        else {
+            dfsFindNums(node->left, numStr);
+            dfsFindNums(node->right, numStr);
+        }
+    }
+};
+```
+
+##### 376. Wiggle Subsequence
+The algorithm is straightforward and get the details right.
+
+```cpp
+int wiggleMaxLength(vector<int>& nums) {
+    if (nums.empty()) return 0;
+    int counter = 0;
+    int llast = nums.front(), last = nums.front();
+    for (int i = 0; i < nums.size(); i++) {
+        while (nums[i] == last && i < nums.size()) i++;
+        int num = nums.back();
+        if (i < nums.size()) num = nums[i];
+        if ((last - llast) * (num - last) <= 0) counter++;
+        llast = last;
+        last = num;
+    }
+    return counter + (last != llast);
+}
+```
+
+##### 279. Perfect Squares
+
+DP solution. There is a mathematical one but I don't care about that. Because the test cases are big, use static to recycle some of the computation.
+
+```cpp
+bool isSqure(int n) {
+    double result = sqrt(n);
+    return result == floor(result);
+}
+int numSquares(int n) {
+    static vector<int> dpArray {0};
+    int m = dpArray.size();
+    dpArray.resize(max(m, n), 0);
+    for (int i = m - 1; i < n; i++) {
+        int num = i + 1;
+        if (isSqure(num)) dpArray[i] = 1;
+        else {
+            int l = 0, r = i - 1;
+            int minNum = INT_MAX;
+            while (l <= r) {
+                minNum = min(minNum, dpArray[l++] + dpArray[r--]);
+            }
+            dpArray[i] = minNum;
+        }
+    }
+    return dpArray[n - 1];
+}
+```
+
+A better algorithm using DP from online discussion:
+
+```cpp
+int numSquares(int n) {
+    static vector<int> dp {0};
+    int m = dp.size();
+    dp.resize(max(m, n+1), INT_MAX);
+    for (int i=1, i2; (i2 = i*i)<=n; ++i)
+        for (int j=max(m, i2); j<=n; ++j)
+            if (dp[j] > dp[j-i2] + 1)
+                dp[j] = dp[j-i2] + 1;
+    return dp[n];
+}
+```
+
+##### 80. Remove Duplicates from Sorted Array II
+Nothing much happening here since the input array is sorted, just check with the number before and see if it is a duplicate.
+
+```cpp
+int removeDuplicates(vector<int>& nums) {
+    int counter = 2;
+    for (int i = 2; i < nums.size(); i++) if (nums[i] != nums[counter - 2]) nums[counter++] = nums[i];
+    return min(counter, (int) nums.size());
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
