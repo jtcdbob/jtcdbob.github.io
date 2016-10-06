@@ -3357,6 +3357,184 @@ int removeDuplicates(vector<int>& nums) {
 }
 ```
 
+##### 209. Minimum Size Subarray Sum
+The question is a bit ambiguous. The subarray has to be consecutive. Use greedy algorithm for this problem - keep a window using two pointers and move them across the array.
+
+```cpp
+int minSubArrayLen(int s, vector<int>& nums) {
+    int minLen = INT_MAX;
+    int l = 0, r = 0;
+    int partialSum = 0;
+    while (r < nums.size()) {
+        partialSum += nums[r++];
+        while (l < r && partialSum >= s) {
+            minLen = min(minLen, r - l);
+            partialSum -= nums[l++];
+        }
+    }
+    return minLen == INT_MAX ? 0 : minLen;
+}
+```
+
+##### 31. Next Permutation
+Not very patient with this. The basic idea is to swap the last element that has something smaller than it. For example, 12354 -> 12453 -> 13452 -> 23451 -> 23541 -> .... This will work and is quite easy to implement.
+
+```cpp
+void nextPermutation(vector<int>& nums) {
+    next_permutation(nums.begin(), nums.end());
+}
+```
+
+##### 11. Container With Most Water
+
+Move from both sides, always move the smaller fence first because it is the only possible way to increase the potential maximum area.
+
+```cpp
+int maxArea(vector<int>& height) {
+    int l = 0, r = height.size() - 1;
+    int maxArea = 0;
+    while (l < r) {
+        int area = min(height[l], height[r]) * (r - l);
+        maxArea = max(maxArea, area);
+        if (height[l] >= height[r]) r--;
+        else l++;
+    }
+    return maxArea;
+}
+```
+
+##### 134. Gas Station
+First of all, move from one end to the other, if the sum is greater or equal to 0, it is possible to move around. The best position is to move right after the deepest pit (be aware of the circle).
+
+```cpp
+int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+    int gasInTank = 0, minGasInTank = INT_MAX, startIndex = 0;
+    for (int i = 0; i < gas.size(); i++) {
+        gasInTank += gas[i] - cost[i];
+        if (gasInTank < minGasInTank) {
+            startIndex = i;
+            minGasInTank = min(minGasInTank, gasInTank);
+        }
+    }
+    return gasInTank >= 0 ? (startIndex + 1) % gas.size() : -1;
+}
+```
+
+##### 73. Set Matrix Zeroes
+Use the first zero row as a temporary variable to keep track of the zero columns. It will be easier if I use some helper functions to set the zeros, but whatever ¯\_(ツ)_/¯
+
+```cpp
+void setZeroes(vector<vector<int>>& matrix) {
+    if (matrix.empty()) return;
+    int M = matrix.size(), N = matrix[0].size();
+    int firstZeroRow = -1;
+    for (int i = 0; i < M; i++) {
+        if (firstZeroRow >= 0) break;
+        for (int j = 0; j < N; j++) {
+            if (matrix[i][j] == 0) {
+                firstZeroRow = i;
+            }
+        }
+    }
+    for (int i = firstZeroRow + 1; i < M; i++) {
+        int zeroRow = 0;
+        for (int j = 0; j < N; j++) {
+            if (matrix[i][j] == 0) {
+                matrix[firstZeroRow][j] = 0;
+                zeroRow = 1;
+            }
+        }
+        if (zeroRow) {
+            for (int j = 0; j < N; j++) {
+                matrix[i][j] = 0;
+            }
+        }
+    }
+    if (firstZeroRow >= 0) {
+        for (int j = 0; j < N; j++) {
+            if (matrix[firstZeroRow][j] == 0) {
+                for (int i = 0; i < M; i++) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        for (int j = 0; j < N; j++) {
+            matrix[firstZeroRow][j] = 0;
+        }
+    }
+}
+```
+
+##### 82. Remove Duplicates from Sorted List II
+Use a dummy head and a dummy tail to go through Duplicates
+
+```cpp
+ListNode* deleteDuplicates(ListNode* head) {
+    ListNode* dummyHead = new ListNode(0);
+    ListNode* dummyTail = dummyHead;
+    ListNode* tail = head;
+    while (tail != NULL) {
+        if (tail->next != NULL && tail->val == tail->next->val) {
+            while (tail->next != NULL && tail->val == tail->next->val) tail = tail->next;
+            dummyTail->next = NULL;
+        } else {
+            dummyTail->next = tail;
+            dummyTail = dummyTail->next;
+        }
+        tail = tail->next;
+    }
+    return dummyHead->next;
+}
+```
+
+##### 289. Game of Life
+Technically, just keep value of the last row and update row by row. In this case, I use code to mark the cell status after update and do a batch update in the very end.
+
+```cpp
+void gameOfLife(vector<vector<int>>& board) {
+    if (board.empty()) return;
+    int M = board.size(), N = board[0].size();
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            board[i][j] = checkCell(i, j, M, N, board); // Mark the cell status by code
+            // 3 for reviving and 4 for killing
+        }
+    }
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            board[i][j] = updateCell(board[i][j]);
+        }
+    }
+}
+
+int checkCell(int i, int j, int M, int N, vector<vector<int>>& board) {
+    int aliveCounter = countAlive(i, j, M, N, board);
+    if (board[i][j] == 0) {
+        if (aliveCounter == 3) return 3; // To be revived
+    } else {
+        if (aliveCounter < 2 || aliveCounter > 3) return 4; // To be killed
+    }
+    return board[i][j]; // Nothing happens
+}
+int countAlive(int i, int j, int M, int N, vector<vector<int>>& board) {
+    int aliveCounter = 0;
+    for (int k = -1; k < 2; k++) {
+        for (int l = -1; l < 2; l++) {
+            aliveCounter += isAlive(i + k, j + l, M, N, board);
+        }
+    }
+    aliveCounter -= board[i][j];
+    return aliveCounter;
+}
+int isAlive(int i, int j, int M, int N, vector<vector<int>>& board) {
+    if (i < 0 || i > M - 1 || j < 0 || j > N - 1) return 0; // Out of boundary
+    if (board[i][j] == 0 || board[i][j] == 3) return 0; // Dead cell before update
+    return 1;
+}
+int updateCell(int cellStatus) {
+    return cellStatus % 2;
+}
+```
 ## Hard
 
 ##### 146. LRU Cache
