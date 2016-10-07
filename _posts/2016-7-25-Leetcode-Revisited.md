@@ -245,6 +245,28 @@ vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
 }
 ```
 
+##### 204. Count Primes
+Basic algorithm (The Sieve of Eratosthenes), note the limit for update cells. For best performance (for large number cases), use array instead of vector for light-weight structure:
+
+```cpp
+int countPrimes(int n) {
+    bool numList[n];
+    memset(numList, true, sizeof(numList));
+    for (int i = 3; i * i < n; i++) {
+        if (numList[i]) {
+            for (int j = i * i; j < n; j += (2 * i)) {
+                numList[j] = false;
+            }
+        }
+    }
+    int counter = 0;
+    for (int i = 3; i < n; i += 2) {
+        if (numList[i]) counter++;
+    }
+    return counter + (n > 2);
+}
+```
+
 ##### 206. Reverse Linked List
 Basic linked list operations. Use a tmp to store intermediate values.
 
