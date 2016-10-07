@@ -10,7 +10,7 @@ locale                   : "en-US"
 title                    : "Bob"
 title_separator          : "-"
 name                     : "Bob"
-description              : "Not sure what this will become."
+description              : "My famous Dresden book."
 url                      : http://kunhechen.com
                            # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
