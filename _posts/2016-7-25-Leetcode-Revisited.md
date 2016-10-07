@@ -3535,6 +3535,241 @@ int updateCell(int cellStatus) {
     return cellStatus % 2;
 }
 ```
+
+##### 162. Find Peak Element
+Bisection. The criteria for update is localized.
+
+```cpp
+int findPeakElement(vector<int>& nums) {
+   int l = 0, r(nums.size());
+    while(l < r){
+        int mid = l + (r-l) / 2;
+        if(mid == l) break;
+        if(nums[mid] > nums[mid-1]) l = mid;
+        else r = mid;
+    }
+    return l;
+}
+```
+
+##### 274. H-Index
+Sort and find. See H-Index II.
+
+##### 275. H-Index II
+Use bisection to go through the citation. Update criteria uses the index position and citation counter.
+
+```cpp
+int hIndex(vector<int>& citations) {
+    if (citations.empty()) return 0;
+    int l = 0, r = citations.size();
+    if (citations.front() >= citations.size()) return citations.size();
+    if (citations.back() < 1) return 0;
+    while (l < r - 1) {
+        int m = (int) (l + r) / 2;
+        if (citations[m] > citations.size() - m) r = m;
+        else l = m;
+    }
+    if (citations[l] >= citations.size() - l) return citations.size() - l;
+    else return citations.size() - r;
+}
+```
+
+##### 313. Super Ugly Number
+The basic idea is to use prime number and existing numbers to create more candidates. Line up the candidates and get the first n. But we cannot store all the candidates generated along the way, so we get one candidate a time. Keep an index of the last used element in the existing numbers for each prime number so we can generate candidates on the fly. Be aware that there might be duplicated candidates from different prime numbers - update them at the same time.
+
+```cpp
+int nthSuperUglyNumber(int n, vector<int>& primes) {
+    vector<int> dpArray(n, 1);
+    const int M = primes.size();
+    vector<int> index(M, 0);
+    vector<int> candidates(primes);
+    for (int i = 1; i < n; i++) {
+        int minNext = INT_MAX;
+        for (int j = 0; j < M; j++) {
+            minNext = min(minNext, candidates[j]);
+        }
+        dpArray[i] = minNext;
+        for (int j = 0; j < M; j++) {
+            if (candidates[j] == minNext) {
+                candidates[j] = primes[j] * dpArray[++index[j]];
+            }
+        }
+    }
+    return dpArray.back();
+}
+```
+
+##### 341. Flatten Nested List Iterator
+I think there are better ways, but I just flatten the list in constructor and output them one by one.
+
+```cpp
+class NestedIterator {
+private:
+    vector<NestedInteger> nil;
+    int cur;
+    vector<int> unfolded;
+    int curUnfolded;
+    vector<int> unfold(vector<NestedInteger> &nestedList) {
+        vector<int> ret;
+        for (NestedInteger ni : nestedList) {
+            if (ni.isInteger()) ret.push_back(ni.getInteger());
+            else {
+                vector<int> tmp = unfold(ni.getList());
+                ret.insert(ret.end(), tmp.begin(), tmp.end());
+            }
+        }
+        return ret;
+    }
+public:
+    NestedIterator(vector<NestedInteger> &nestedList) {
+        nil = nestedList;
+        cur = 0;
+        curUnfolded = 0;
+    }
+
+    int next() {
+        if (curUnfolded < unfolded.size()) return unfolded[curUnfolded++];
+        if (nil[cur].isInteger()) return nil[cur++].getInteger();
+        return this->next();
+    }
+
+    bool hasNext() {
+        if (curUnfolded < unfolded.size()) return true;
+        else if (cur < nil.size()) {
+            if (nil[cur].isInteger()) return true;
+            unfolded = unfold(nil[cur++].getList());
+            curUnfolded = 0;
+            return this->hasNext();
+        }
+        return false;
+    }
+};
+```
+
+##### 310. Minimum Height Trees
+The first idea (naive one) is to use dfs from each root and get the maximum depth for each root. Do it more smartly and keep track of the depth from one node to another, so the algorithm does less work. Technically, each edge is only traversed twice.
+
+```cpp
+vector<int> findMinHeightTrees(int n, vector<pair<int, int>>& edges) {
+    unordered_map<int, vector<pair<int, int>>> graph; // nodeA -> nodeB, minHeight
+    vector<int> nodes(n, 0);
+    for (pair<int, int> edge : edges) {
+        graph[edge.first].push_back(pair<int, int> (edge.second, INT_MAX));
+        graph[edge.second].push_back(pair<int, int> (edge.first, INT_MAX));
+    }
+
+    int minH = INT_MAX;
+    vector<int> minHRoots;
+    for (int node = 0; node < n; node++) {
+        int height = dfsHeight(node, nodes, graph);
+        if (height < minH) {
+            minH = height;
+            minHRoots.clear();
+            minHRoots.push_back(node);
+        } else if (height == minH) minHRoots.push_back(node);
+    }
+    return minHRoots;
+}
+int dfsHeight(int node, vector<int>& nodes, unordered_map<int, vector<pair<int, int>>>& graph) {
+    nodes[node] = 1;
+    int maxHeight = 0;
+    for (int i = 0; i < graph[node].size(); i++) {
+        if (nodes[graph[node][i].first]) continue;
+        if (graph[node][i].second < INT_MAX) maxHeight = max(maxHeight, graph[node][i].second);
+        else {
+            int height = dfsHeight(graph[node][i].first, nodes, graph) + 1;
+            graph[node][i].second = height;
+            maxHeight = max(maxHeight, height);
+        }
+    }
+    nodes[node] = 0;
+    return maxHeight;
+}
+```
+
+A better solution is to reduce the graph by trimming the leaves (nodes with only one or no inNode). Trim the graph repeatedly till there are more leaves than center nodes (or equal amount). Since each leave reduces the inDegree by 1, this indicates that all the nodes left can produce trees of the same height. This is a better solution. The idea of trimming is very useful in graph.
+
+```cpp
+vector<int> findMinHeightTrees(int n, vector<pair<int, int>>& edges) {
+    vector<int> influx(n , 0);
+    unordered_map<int, vector<int>> graph;
+    for (pair<int, int> edge : edges) {
+        graph[edge.first].push_back(edge.second);
+        influx[edge.second]++;
+        graph[edge.second].push_back(edge.first);
+        influx[edge.first]++;
+    }
+
+    int nodeNum = n;
+    vector<int> leaves;
+    for (int i = 0; i < influx.size(); i++) {
+        if (influx[i] <= 1) leaves.push_back(i);
+    }
+    while (nodeNum > leaves.size()) {
+        nodeNum -= leaves.size();
+        vector<int> newLeaves;
+        for (int leave : leaves) {
+            for (int inNode : graph[leave]) {
+                if(--influx[inNode] == 1) newLeaves.push_back(inNode);
+            }
+        }
+        leaves.swap(newLeaves);
+    }
+    return leaves;
+}
+```
+
+##### 386. Lexicographical Numbers
+I didn't really do it myself. The key is to find the pattern and then populate the vector with the o(1) procedure. An implementation from online discussion:
+
+```cpp
+vector<int> lexicalOrder(int n) {
+    vector<int> res(n);
+    int cur = 1;
+    for (int i = 0; i < n; i++) {
+        res[i] = cur;
+        if (cur * 10 <= n) {
+            cur *= 10;
+        } else {
+            if (cur >= n)
+                cur /= 10;
+            cur += 1;
+            while (cur % 10 == 0)
+                cur /= 10;
+        }
+    }
+    return res;
+}
+```
+
+##### 5. Longest Palindromic Substring
+I didn't go fancy or anything with this one, just test each letter and see if it can become the "center" of the palindrome. Possible optimization is to start the process from the middle and then move to the sides (bisectionally or linearly). Stop when the palindrome size is greater than possible palindrome size. This can speed up for some cases such as "aaaaaaa" but it requires much more work to get the details right.
+
+```cpp
+string longestPalindrome(string s) {
+    string ret = "";
+    for (int i = 0; i < s.size(); i++) {
+        string tmp = getPalindrome(i, s);
+        if (tmp.size() > ret.size()) ret = tmp;
+    }
+    return ret;
+}
+string getPalindrome(int i, string& s) {
+    string ret = "";
+    int d = 0;
+    while (i - d > -1 && i + d < s.size() && s[i - d] == s[i + d]) {
+        d++;
+    }
+    ret = s.substr(i - d + 1, 2 * d - 1);
+    d = 0;
+    while (i - d > -1 && i + d + 1 < s.size() && s[i - d] == s[i + d + 1]) {
+        d++;
+    }
+    if (2 * d > ret.size()) ret = s.substr(i - d + 1, 2 * d );
+    return ret;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
