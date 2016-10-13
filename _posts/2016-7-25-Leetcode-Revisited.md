@@ -202,8 +202,8 @@ int majorityElement(vector<int>& nums) {
             counter++;
         }
         else if (--counter < 0) {
-			popularElement = nums[i];
-			counter = 1;
+            popularElement = nums[i];
+            counter = 1;
         }
     }
     return popularElement;
@@ -1877,7 +1877,7 @@ public:
 ```
 
 ##### 94. Binary Tree Inorder Traversal
-Use dfs to go through the tree.
+Use dfs to go through the tree. Alternatively, there is a method that uses o(n) time and o(1) space. Morris traversal:
 
 ```cpp
 vector<int> inorderTraversal(TreeNode* root) {
@@ -2983,6 +2983,9 @@ bool isPerfectSquare(int num) {
 Order the number and then concatenate them to get the largest number. Important note when two numbers have the same initial sequences. Just compare the result of them in sequence. Once the comparator is defined, do a sort and then concatenate.
 
 ```cpp
+inline bool strCmp(string a, string b) {
+    return (a + b) > (b + a);
+}
 string largestNumber(vector<int>& nums) {
     vector<string> numsStr(nums.size());
     for (int i = 0; i < nums.size(); i++) numsStr[i] = to_string(nums[i]);
@@ -3443,7 +3446,7 @@ int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
 ```
 
 ##### 73. Set Matrix Zeroes
-Use the first zero row as a temporary variable to keep track of the zero columns. It will be easier if I use some helper functions to set the zeros, but whatever ¯\_(ツ)_/¯
+Use the first zero row as a temporary variable to keep track of the zero columns. It will be easier if I use some helper functions to set the zeros, but whatever ¯\\_(ツ)_/¯
 
 ```cpp
 void setZeroes(vector<vector<int>>& matrix) {
