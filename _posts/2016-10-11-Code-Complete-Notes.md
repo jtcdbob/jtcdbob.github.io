@@ -92,31 +92,19 @@ The quality of the architecture determines the conceptual integrity of the syste
 
 A system architecture
 
-Needs an overview that describes the system in broad terms
-
-Specifies the major classes to be used
-
-Describes the major files and table designs to be used. Data should normally be accessed directly by only one subsystem or class, except through access classes or routines that allow access to the data in controlled and abstract way.
-
-Identifies business rules and describes their impact have on the system’s design.
-
-Specifies user interface design. The architecture should be modularized so that a new user interface can be substituted without affecting the business rules and output parts of the program.
-
-Describes a plan for managing scarce resources such as database connections, threads and handles.
-
-Describes the approach to design-level and code-level security.
-
-Specifies performance if it is a concern.
-
-Describes scalability. If scalability is not an issue, the architecture should make that assumption explicit.
-
-Describes possible localization of the program.
-
-Describes Input/Output
-
-Specifies error processing. (Detailed discussion in the book)
-
-Describes fault tolerance.
+* Needs an overview that describes the system in broad terms
+* Specifies the major classes to be used
+* Describes the major files and table designs to be used. Data should normally be accessed directly by only one subsystem or class, except through access classes or routines that allow access to the data in controlled and abstract way.
+* Identifies business rules and describes their impact have on the system’s design.
+* Specifies user interface design. The architecture should be modularized so that a new user interface can be substituted without affecting the business rules and output parts of the program.
+* Describes a plan for managing scarce resources such as database connections, threads and handles.
+* Describes the approach to design-level and code-level security.
+* Specifies performance if it is a concern.
+* Describes scalability. If scalability is not an issue, the architecture should make that assumption explicit.
+* Describes possible localization of the program.
+* Describes Input/Output
+* Specifies error processing. (Detailed discussion in the book)
+* Describes fault tolerance.
 
 Architectural feasibility
 
@@ -158,21 +146,14 @@ Understanding the distinction between programming in a language and programming 
 
 #### 5.1 Design Challenges
 
-Design is the activity that links requirements to coding and debugging.
-
-Design is a wicked problem - it can only be clearly defined by solving it.
-
-Design is a sloppy process - it is hard to know when your design is “good enough” (most common answer to that question is “when you’re out of time”).
-
-Design is about tradeoffs and priorities
-
-Design involves restrictions - the point of design is partly to create possibilities and partly to restrict possibilities.
-
-Design is nondeterministic
-
-Design is a heuristic process - “rules of thumb” or “things to try that sometimes work”. No tool is right for everything.
-
-Design is emergent - designs evolve and improve through reviews, discussion and experience.
+* Design is the activity that links requirements to coding and debugging.
+* Design is a wicked problem - it can only be clearly defined by solving it.
+* Design is a sloppy process - it is hard to know when your design is “good enough” (most common answer to that question is “when you’re out of time”).
+* Design is about tradeoffs and priorities
+* Design involves restrictions - the point of design is partly to create possibilities and partly to restrict possibilities.
+* Design is nondeterministic
+* Design is a heuristic process - “rules of thumb” or “things to try that sometimes work”. No tool is right for everything.
+* Design is emergent - designs evolve and improve through reviews, discussion and experience.
 
 #### 5.2 Key Design Concepts
 
@@ -182,46 +163,29 @@ Minimize the amount of a program you have to think about at any one time. Dividi
 
 Desirable Characteristics of a design:
 
-Minimal Complexity
-
-Ease of maintenance
-
-Loose coupling
-
-Extensibility
-
-Reusability
-
-High fan-in
-
-Low-to-medium fan-out
-
-Portability
-
-Leanness
-
-Stratification
-
-Standard Techniques
+* Minimal Complexity
+* Ease of maintenance
+* Loose coupling
+* Extensibility
+* Reusability
+* High fan-in
+* Low-to-medium fan-out
+* Portability
+* Leanness
+* Stratification
+* Standard Techniques
 
 Levels of design:
 
-Software system
-
-Division into subsystems/packages - minimize communication between subsystems. Common subsystems:
-Business rules
-
-User interface
-
-Database access
-
-System dependencies
-
-Division into classes within packages
-
-Division into data and routines within classes
-
-Internal routine design
+* Software system
+* Division into subsystems/packages - minimize communication between subsystems. Common subsystems:
+    * Business rules
+    * User interface
+    * Database access
+    * System dependencies
+* Division into classes within packages
+* Division into data and routines within classes
+* Internal routine design
 
 #### 5.3 Design Building Blocks: Heuristics
 
