@@ -38,7 +38,7 @@ I always want a more organized way to review C++ STL containers before my interv
 * `push_back()`
 * `pop_back()`
 * `insert(iterator, [number], element)`
-* `insert(iterator, first, last)` - copy everything between first - last and then insert them before iterator. e.g. l.insert(l.begin(), vec.begin(), vec.end());
+* `insert(iterator, first, last)` - copy everything between first - last and then insert them before iterator. e.g. `l.insert(l.begin(), vec.begin(), vec.end())`;
 * `erase(position) / erase(first, last)`
 * `remove(val)`;
 * `remove_if(is_condition())`; [a bool function] o(n)
@@ -58,7 +58,7 @@ I always want a more organized way to review C++ STL containers before my interv
 
 `clear()`; clear all contents
 
-`find(key)`; return iterator for specific key. map.end() if not found. o(logN)
+`find(key)`; return iterator for specific key. `map.end()` if not found. o(logN)
 
 `lower_bound(key)/upper_bound(key)`: return iterator for lower/upper bound on map[key]. o(logN).
 
