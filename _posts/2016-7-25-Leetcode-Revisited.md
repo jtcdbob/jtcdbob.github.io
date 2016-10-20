@@ -3795,6 +3795,44 @@ string getPalindrome(int i, string& s) {
 }
 ```
 
+##### 332. Reconstruct Itinerary
+Try to find a route first. Go back when reaching the end without using up all the tickets. Then keep doing this till an itinerary is found. Backtracking idea comes from [online](https://discuss.leetcode.com/topic/46577/28ms-c-beat-100-short-and-elegant).
+
+```cpp
+vector<string> findItinerary(vector<pair<string, string>> tickets) {
+    unordered_map<string, priority_queue<string, vector<string>, greater<string>>> ticketDict;
+    int nPath = 0;
+    for (pair<string, string> ticket : tickets) {
+        ticketDict[ticket.first].push(ticket.second);
+        nPath++;
+    }
+
+    stack<string> backTrack;
+    vector<string> itinerary = {"JFK"};
+    string dept = itinerary.back();
+    while (nPath) {
+        while (ticketDict[dept].empty()) {
+            backTrack.push(dept);
+            itinerary.pop_back();
+            dept = itinerary.back();
+        }
+        while (ticketDict.find(dept) != ticketDict.end() && !ticketDict[dept].empty()) {
+            itinerary.push_back(ticketDict[dept].top());
+            ticketDict[dept].pop();
+            dept = itinerary.back();
+            nPath--;
+        }
+    }
+
+    while (!backTrack.empty()) {
+        itinerary.push_back(backTrack.top());
+        backTrack.pop();
+    }
+
+    return itinerary;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
@@ -3856,5 +3894,30 @@ int calculateMinimumHP(vector<vector<int>>& dungeon) {
         }
     }
     return dungeon[0][0];
+}
+```
+
+##### 44. Wildcard Matching (*)
+Iterative algorithm from [online discussion](https://discuss.leetcode.com/topic/21577/my-three-c-solutions-iterative-16ms-dp-180ms-modified-recursion-88ms/2). Whenever a '*' wildcard is encountered, mark the position and backtrack if necessary, otherwise keep going till things break.
+
+```cpp
+bool isMatch(string s, string p) {
+    int i, j, sLen = s.size(), pLen = p.size(), iLast = -1, jLast = -1;
+    for (i = 0, j = 0; i < sLen; i++, j++) {
+        if (p[j] == '*') { // Find a string wildcard
+            iLast = i;
+            jLast = j;
+            i--;
+        } else {
+            if (p[j] != s[i] && p[j] != '?') { // Mismatch
+                if (iLast >= 0) {
+                    i = iLast++;
+                    j = jLast - 1; // Back to string wildcard if any
+                } else return false;
+            }
+        }
+    }
+    while (p[j] == '*') j++;
+    return j == pLen;
 }
 ```
