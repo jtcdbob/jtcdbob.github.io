@@ -288,6 +288,128 @@ Capturing the design work - insert design documentation into the code, capture d
 
 ### Chapter 6: Working Classes
 
+> A class is a collection of data and routines that share a cohesive, well-defined responsibility..... A key to beging an effective programmer is maximizing the portion of a program that you can safely ignore while working on any one section of code.
+
+#### 6.1 Class Foundations: Abstract Data Types (ADTs)
+
+> An abstract data type is a collection of data and operations that work on that data. The operations both describe the data to the rest of the program and allow the rest of the program change the data.
+
+Using ADT can reduce seemingly ad hoc code and is a better programmer practice.
+
+Some benefits of using ADTs:
+
+* Hide implementation details.
+* Changes don't affect the whole programming. Also more centrailzed control over class functionalities.
+* Make the interface more informative.
+* Easier to improve performance. Change core routines to make things faster.
+* The program is more obviously correct - it becomes more self-documenting.
+* No need to pass data all over the program.
+* Enable one to work with real-world entities rather than low-level implementation structures.
+
+Some guidelines:
+
+* Build or use typical low-level data types as ADTs.
+* Treat common objects such as files as ADTs.
+* Refer to an ADT independently of the medium it is stored on.
+
+For non-object-oriented languages, you have to handle multiple instances of data with ADTs yourself by making operation purpose more explicit.
+
+#### Good Class Interface
+
+> The first and probably most important step in creating a high-quality class is creating a good interface.
+
+Be sure to understand what abstract the class is implementing and only implement one ADT at a time. Do not add public members that are inconsistent with the interface abstraction. Consider abstraction and cohesion together.
+
+Encapsulation helps enforce abstraction. Make sure you
+
+* Minimize accessibility of classes and members.
+* Do not expose member data in public.
+* Avoid putting private implementation details into a class's interface. E.g. do not declare private member in your header files.
+* Do not make assumptions about the class's users. A class should make no assumption how the interface will/won't be used.
+* Avoid friend classes - they compromise encapsulation.
+* Do not put a routine into the public interface just because it uses only public routines.
+* Favor read-time convenience to write-time convenience. Write for readability.
+* Be very, very wary of semantic violation of encapsulation. The implementation should take care of routines such as initialization and termination automatically, instead of relying on how public methods are called.
+* Watch for coupling that is too tight.
+    * Minimize accessibility of classes and members.
+    * Avoid friend classes, because they're tightly coupled.
+    * Make data private rather than protected in a base class to make derived classes less tightly coupled to the base class.
+    * Avoid exposing member data in a class's public interface.
+    * Observe the "Law of Demeter".
+
+#### 6.3 Design and Implementation Issues
+
+##### Containment ("has a" relationships)
+
+> Containment is the simple idea that a class contains a primitive data element or object...... Containment is the work-horse technique in object-oriented programming.
+
+* Implement "has a" through containment
+* Implement "has a" through private inheritance as a last resort
+* Be critical of classes that contain more than about 7 data members (which is about as many items as a person can remember in the background).
+
+##### Inheritance ("is a" relationship)
+
+> Inheritance is the idea that one class is a specification of another class. The purpose of inheritance is to create simpler code by defining a base class that specifies common elements of two or more derived classes.
+
+* Implement "is a" through public inheritance
+* Design and document for inheritance or prohibit it
+* Adhere to the Liskov Substitution Principle (LSP) - you shouldn't inherit a base class unless the derived class truly "is a" more specific version of the base class.
+* Be sure to inherit only what you want to inherit. Inherited routines are divided into
+    * An abstract overridable routine - the interface is inherited but not implementation
+    * An overridable routine - the default implementation is inherited but it can be overrided
+    * A non-overridable routine - the implementation is inherited and finalized.
+* Do not "override" a non-overridable member function - do not reuse names of non-overridable base-class routines in derived classes.
+* Move common interfaces, data, and behavior as high as possible in the inheritance
+* Be suspicious of classes of which there is only one instance. (Singleton pattern is an exception to this guideline)
+* Be suspicious of classes that override a routine and do nothing inside the derived routine.
+* Avoid deep inheritance trees. It is suggested to limit the maximum inheritance level to 6.
+* Prefer polymorphism to extensive type checking.
+* Make all data private, not protected.
+
+Multiple inheritance is powerful but dangerous.
+
+##### Member Functions and data
+
+Guidelines for implementing member functions and member data
+
+* Keep the number of routines in a class as small as possible
+* Disallow implicitly generated member functions and operators you don't want
+* Minimize the member of different routines called by a class
+* Minimize indirect routine calls to other classes. "Law of Demeter" - If object A instantiate Object B, it can call any of Object B's routines, but it should avoid calling routines on objects provided by Object B.
+* In general, minimize the extent to which a class collaborates with other classes.
+
+##### Constructors
+
+Guidelines for constructors
+
+* Initialize all member data in all constructors, if possible
+* Enforce the singleton property by using a private constructor (hide public constructor)
+* Prefer deep copies to shallow copies until proven otherwise
+
+#### 6.4 Reasons to Create a Class
+
+A list of good reasons to create a class
+
+* Model real-world object
+* Model abstract objects
+* Reduce complexity
+* Isolate complexity
+* Hide implementation details
+* Limit effects of changes
+* Hide global data
+* Streamline parameter passing
+* Make central points of control
+* Facilitate reusable code
+* Plan for a family of programs
+* Package related operations
+* Accomplish a specific refactoring
+
+Avoid the follwing classes
+
+* God classes
+* Eliminate irrelevant classes
+* Classes named after verbs - a class has only behavior but no data is generally not really a class
+
 ### Chapter 7: High-Quality Routines
 
 ### Chapter 8: Defensive Programming

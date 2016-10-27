@@ -2573,7 +2573,7 @@ int maxProduct(vector<string>& words) {
 ```
 
 ##### 382. Linked List Random Node
-Use [reservoir sampling](https://en.wikipedia.org/wiki/Reservoir_samplin) technique for the algorithm.
+Use [reservoir sampling](https://en.wikipedia.org/wiki/Reservoir_sampling) technique for the algorithm. The basic idea is to keep one element while going through the entire list of unknown length. For ith element in the list, give it 1/i probability to replace the element and eventually just return that element. The probability that any element is kept in the end is then `1/n`, where `n` is hitherto unknown length of the list.
 
 ```cpp
 class Solution {
