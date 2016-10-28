@@ -3833,6 +3833,68 @@ vector<string> findItinerary(vector<pair<string, string>> tickets) {
 }
 ```
 
+##### 372. Super Pow
+
+The key is to figure out the math formula for `mod`. Suppose we have `x0 % NUM = x1` and `y0 % NUM = y1`, then we will have the following relationship
+
+```
+(x0 * y0) % NUM = (x1 * y1) % NUM
+```
+
+This is clear if we divide a number into `a = a1 + a2` where `a1 % NUM = 0` and `a2 = a % NUM`. I'll leave the rest of math, but by multiplying the numbers out, one can easily prove the above relationship.
+
+With this concept in mind, this problem is simplified to finding out the residue at each level and keep working out the "large" array `b`, whose size really doesn't matter that much at this stage. The complexity is `o(n)` where `n` is the size of `b`.
+
+```cpp
+const int NUM = 1337;
+int superPow(int a, vector<int>& b) {
+    if (b.empty()) return 1;
+    int res = 1;
+    int lastDigRes = a % NUM;
+    for (int i = b.size() - 1; i > -1; i--) {
+        int powTo = b[i];
+        res *= myPow(lastDigRes, powTo);
+        if (res >= NUM) res %= NUM;
+        if (res == 0) return 0;
+        lastDigRes = myPow(lastDigRes, 10);
+    }
+    return res;
+}
+int myPow(int a, int b) {
+    int tmp = 1;
+    for (int i = 0; i < b; i++) {
+        tmp *= a;
+        if (tmp >= NUM) tmp %= NUM;
+    }
+    return tmp;
+}
+```
+
+##### 142. Linked List Cycle II
+
+Use two runner pointers at different speed. Once they meet, return one to the start and have them keep going at the same pace. Eventually they will meet at the start of the cycle. Very nice insight into this kind of problems.
+
+```cpp
+ListNode *detectCycle(ListNode *head) {
+    if (head == NULL) return NULL;
+    ListNode *sNode = head, *dNode = head;
+
+    while (dNode != NULL) {
+        dNode = dNode->next;
+        if (dNode != NULL && dNode->next != NULL) dNode = dNode->next;
+        else return NULL;
+        sNode = sNode->next;
+        if (dNode == sNode) break;
+    }
+    dNode = head;
+    while (sNode != dNode) {
+        dNode = dNode->next;
+        sNode = sNode->next;
+    }
+    return dNode;
+}
+```
+
 ## Hard
 
 ##### 146. LRU Cache
@@ -3919,5 +3981,30 @@ bool isMatch(string s, string p) {
     }
     while (p[j] == '*') j++;
     return j == pLen;
+}
+```
+
+##### 287. Find the Duplicate Number
+
+This problem has a lot of easier variations but the imposed conditions make the whole problem much harder. For easier approach, one can
+
+1. Sort the array and find the duplicate easily. `o(nlog(n))` and you have to be able to change the array, but super easy to implement.
+2. Sum the elements up and use math formula to find the missing number. However, this does not work for this one because there can be more than one duplicates.
+3. Use a map to keep track of existing elements. Nice and simple but needs extra space.
+
+Last but not least, see the array as a linked list (because all indices are in the range of the array itself). Then we know that if there are duplicates of one particular, unique number, then as we traverse the linked list, we're bound to come back to one of the elements here.
+
+So my implementation did not really keep the array "unchanged", but it is easy to fix - have the number set to be negative of itself instead of `0` and in the end negate those numbers back in one giant sweep. The algorithm will run `o(n)`.
+
+```cpp
+int findDuplicate(vector<int>& nums) {
+    if (nums.empty()) return -1;
+    int index = 0;
+    while (nums[index]) {
+        int tmp = nums[index];
+        nums[index] = 0;
+        index = tmp;
+    }
+    return index;
 }
 ```
