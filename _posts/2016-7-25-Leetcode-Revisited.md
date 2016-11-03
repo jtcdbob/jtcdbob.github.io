@@ -1402,6 +1402,27 @@ public:
 };
 ```
 
+##### 409. Longest Palindrome
+
+Very straightforward question - just count how many each letter has shown up in the string. Say if 'a' has shown up 3 times, then we can at least use 2 'a's on both ends of the new palindrome. Then if we have letter that is odded out, we can add it to the center (only once). The performance of this algorithm can be improved by using more suitable data structure and stuffs, but hey I wrote it in 3 min.
+
+```cpp
+int longestPalindrome(string s) {
+    unordered_map<char, int> countDict;
+    for (char c : s) {
+        if (countDict.find(c) != countDict.end()) countDict[c]++;
+        else countDict[c] = 1;
+    }
+    int counter = 0, oddFlag = 0;
+    for (auto pair : countDict) {
+        int isOdd = pair.second % 2;
+        counter += pair.second - isOdd;
+        oddFlag += isOdd;
+    }
+    return counter + (oddFlag > 0);
+}
+```
+
 ## Medium
 
 ##### 381. Insert Delete GetRandom O(1) - Duplicates allowed
