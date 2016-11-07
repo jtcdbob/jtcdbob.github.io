@@ -3423,11 +3423,39 @@ int minSubArrayLen(int s, vector<int>& nums) {
 ```
 
 ##### 31. Next Permutation
-Not very patient with this. The basic idea is to swap the last element that has something smaller than it. For example, 12354 -> 12453 -> 13452 -> 23451 -> 23541 -> .... This will work and is quite easy to implement.
+Not very patient with this.
+
+Well, don't be. The actual solution is
+
+> Starting from the end of array, find the first element e_1 which is less than its following element. Reverse all elements after e_1 and then find the first element (e_2) which is greater than e_1 from these reversed elements. Swap e_1 and e_2.
+
+
 
 ```cpp
 void nextPermutation(vector<int>& nums) {
     next_permutation(nums.begin(), nums.end());
+}
+```
+
+The actual solution.
+
+```cpp
+void nextPermutation(vector<int>& nums) {
+    for (int i = nums.size() - 2; i > -1; i--) {
+        if (nums[i] < nums[i + 1]) {
+            reverse(nums.begin() + i + 1, nums.end());
+            for (int j = i + 1; j < nums.size(); j++) {
+                if (nums[j] > nums[i]) {
+                    int tmp = nums[i];
+                    nums[i] = nums[j];
+                    nums[j] = tmp;
+                    return;
+                }
+            }
+            return;
+        }
+    }
+    reverse(nums.begin(), nums.end());
 }
 ```
 
@@ -3985,23 +4013,21 @@ Iterative algorithm from [online discussion](https://discuss.leetcode.com/topic/
 
 ```cpp
 bool isMatch(string s, string p) {
-    int i, j, sLen = s.size(), pLen = p.size(), iLast = -1, jLast = -1;
-    for (i = 0, j = 0; i < sLen; i++, j++) {
-        if (p[j] == '*') { // Find a string wildcard
-            iLast = i;
+    int iLast = -1, jLast = -1, i, j;
+    for (i = 0, j = 0; i < s.size(); i++, j++) {
+        if (p[j] == '*') {
+            iLast = i--;
             jLast = j;
-            i--;
         } else {
-            if (p[j] != s[i] && p[j] != '?') { // Mismatch
-                if (iLast >= 0) {
-                    i = iLast++;
-                    j = jLast - 1; // Back to string wildcard if any
-                } else return false;
+            if (p[j] != '?' && p[j] != s[i]) {
+                if (jLast < 0) return false;
+                i = iLast++;
+                j = jLast;
             }
         }
     }
-    while (p[j] == '*') j++;
-    return j == pLen;
+    while (j < p.size() && (p[j] == '*')) j++;
+    return j == p.size();
 }
 ```
 
