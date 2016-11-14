@@ -618,6 +618,31 @@ bool dfs(TreeNode* node, const int target, int pathSum) {
 }
 ```
 
+##### 113. Path Sum II
+
+Relatively easy, just do dfs and keep track of each element along the path, when a sum is found, push back the path track to the result set.
+
+```cpp
+vector<vector<int>> pathSum(TreeNode* root, int sum) {
+    vector<vector<int>> res;
+    vector<int> tmp;
+    dfsFindPath(root, sum, res, tmp);
+    return res;
+}
+void dfsFindPath(TreeNode* node, int sum, vector<vector<int>>& results, vector<int>& tmp) {
+    if (node == NULL) return;
+    tmp.push_back(node->val);
+    sum -= node->val;
+    if (node->left == NULL && node->right == NULL && sum == 0) {
+        results.push_back(tmp);
+    } else {
+        if (node->left != NULL) dfsFindPath(node->left, sum, results, tmp);
+        if (node->right != NULL) dfsFindPath(node->right, sum, results, tmp);
+    }
+    tmp.pop_back();
+}
+```
+
 ##### 107. Binary Tree Level Order Traversal II
 Nothing much, just plain bfs traversal. Make sure to keep track of the elements in each level. This can be done by using two queues. Alternatively, use a `for` loop each time going into the queue.
 
@@ -1330,21 +1355,6 @@ public:
 };
 ```
 
-##### 1. Two Sum
-Classy. Use a map.
-
-```cpp
-vector<int> twoSum(vector<int>& nums, int target) {
-    unordered_map<int, int> existingNums;
-    for (int i = 0; i < nums.size(); i++) {
-        int comp = target - nums[i];
-        if (existingNums.find(comp) != existingNums.end()) return vector<int> {existingNums[comp], i};
-        else existingNums[nums[i]] = i;
-    }
-    return vector<int> {};
-}
-```
-
 ##### 125. Valid Palindrome
 This one is really annoying. There is a nice function `isalnum()` to quickly check if a char is letter or number. (I can't believe c++ doesn't have a `to_lower()` for strings!)
 
@@ -1420,6 +1430,16 @@ int longestPalindrome(string s) {
         oddFlag += isOdd;
     }
     return counter + (oddFlag > 0);
+}
+```
+
+##### 441. Arranging Coins
+
+Easy math formula derived from n*(n+1) > 2k. Do cast to (double) for better performance and avoid round errors.
+
+```cpp
+int arrangeCoins(int n) {
+    return (sqrt(1.0 + 8.0 * n) - 1.0 ) / 2.0;
 }
 ```
 
@@ -2295,6 +2315,25 @@ bool canJump(vector<int>& nums) {
 }
 ```
 
+##### 45. Jump Game II
+
+Keep track of the maximum jump distance and only update the jump count when you exceed that point. Helpful [discussion](https://discuss.leetcode.com/topic/57368/evolve-from-brute-force-to-optimal).
+
+```cpp
+int jump(vector<int>& nums) {
+
+    int maxDist = 0, curMax = 0, jumpCount = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (i > curMax) {
+            jumpCount ++;
+            curMax = maxDist;
+        }
+        maxDist = max(maxDist, i + nums[i]);
+    }
+    return jumpCount;
+}
+```
+
 ##### 207. Course Schedule
 This is a graph problem. Essentially, one wants to find out whether there exists a loop in the graph. Kahn's algorithm uses DFS to traverse the graph. Use colored node to help implement this algorithm.
 
@@ -2518,6 +2557,21 @@ int getChildrenSum(TreeNode* node) {
 }
 ```
 
+##### 1. Two Sum
+Classy. Use a map.
+
+```cpp
+vector<int> twoSum(vector<int>& nums, int target) {
+    unordered_map<int, int> existingNums;
+    for (int i = 0; i < nums.size(); i++) {
+        int comp = target - nums[i];
+        if (existingNums.find(comp) != existingNums.end()) return vector<int> {existingNums[comp], i};
+        else existingNums[nums[i]] = i;
+    }
+    return vector<int> {};
+}
+```
+
 ##### 167. Two Sum II - Input array is sorted
 Move from left and right ends and find the target. This is a linear method with constant space. Tried binary search, but it's too annoying.
 
@@ -2531,6 +2585,63 @@ vector<int> twoSum(vector<int>& numbers, int target) {
         else return vector<int> {l + 1, r + 1};
     }
     return vector<int> {};
+}
+```
+
+##### 15. 3Sum
+
+Remember that when the array is sorted, there are faster way to go through the problem without using extra space. Now 3Sum is just the same problem with extra layer of loop. Using a hashmap sort of works (o(n^2)) but the space complexity is not good enough.
+
+Note the inner loop is actually working on the section left to the outer index. This skips the duplicate comfortably (I didn't write this), nice approach:
+
+```cpp
+vector<vector<int>> threeSum(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+    vector<vector<int>> ans;
+    for (int k = 2; k < nums.size(); k++) {
+        if (k + 1 < nums.size() && nums[k] == nums[k + 1]) continue; // Skip duplicates
+        int i = 0, j = k - 1;
+        int target = 0 - nums[k];
+        while (i < j) {
+            int sum = nums[i] + nums[j];
+            if (sum < target || (i > 0 && nums[i - 1] == nums[i])) i++; // Skip duplicates
+            else if (sum > target || (j + 1 < k && nums[j] == nums[j + 1]))j--; // Skip duplicates
+            else ans.push_back({nums[i++], nums[j--], nums[k]});
+        }
+    }
+    return ans;
+}
+```
+
+##### 16. 3Sum Closest
+
+Similar to 3 sum. Instead of finding the exact target number, see if each time the sum gets closer to the target number. Structure of the code is the same as 15 but the core logics changes a little bit.
+
+```cpp
+int threeSumClosest(vector<int>& nums, int target) {
+    sort(nums.begin(), nums.end());
+    int closeSum = 0;
+    int dist = INT_MAX;
+    for (int k = 2; k < nums.size(); k++) {
+        if (k + 1 < nums.size() && nums[k] == nums[k + 1]) continue;
+        int i = 0, j = k - 1;
+        int newTarget = target - nums[k];
+        while (i < j) {
+            int sum = nums[i] + nums[j];
+            int tmpDist = abs(sum - newTarget);
+            if (tmpDist < dist) {
+                dist = tmpDist;
+                closeSum = nums[i] + nums[j] + nums[k];
+            }
+            if (sum < newTarget) i++;
+            else if (sum > newTarget) j--;
+            else return target;
+
+            while (i > 0 && nums[i - 1] == nums[i]) i++;
+            while (j + 1 < k && nums[j] == nums[j + 1]) j--;
+        }
+    }
+    return closeSum;
 }
 ```
 
@@ -3943,6 +4054,137 @@ ListNode *detectCycle(ListNode *head) {
     return dNode;
 }
 ```
+
+##### 322. Coin Change
+
+(Was asked about this question for 3 times at least and I still didn't know the dp solution. Fail.) Well, do it using DP, look for previous best change and see if you can do better.
+
+```cpp
+int coinChange(vector<int>& coins, int amount) {
+    vector<int> dpArray(amount + 1, amount + 1);
+    dpArray[0] = 0;
+    for (int i = 0; i < dpArray.size(); i++) {
+        for (int coin: coins) {
+            if (i - coin >= 0) {
+                dpArray[i] = min(dpArray[i], dpArray[i - coin] + 1);
+            }
+        }
+    }
+
+    return dpArray.back() > amount ? -1 : dpArray.back();
+}
+```
+##### 131. Palindrome Partitioning
+
+This one is related to 132. The key is to make a matrix that keeps track of all the palindroms using start and end indices. When you have that matrix, the rest is fairly simple. I used a dfs to traverse through the matrix and get all the possible outcomes out. Something else may perform better.
+
+```cpp
+int minCut(string s) {
+    int L = s.size();
+    bool palMatrix[L][L];
+    for (int i = 0; i < L; i++) palMatrix[i][i] = true;
+    for (int i = 0; i < L - 1; i++) palMatrix[i + 1][i] = (s[i + 1] == s[i]);
+    for (int j = 2; j < L; j++) {
+        for (int i = 0; i < L - j; i++) {
+            if(s[i] == s[i + j]) {
+                palMatrix[i + j][i] = palMatrix[i + j - 1][i + 1];
+            } else palMatrix[i + j][i] = 0;
+        }
+    }
+
+    int dpArray[L];
+    for (int i = 0; i < L; i++) {
+        if (palMatrix[i][0] != 0) {
+            dpArray[i] = 0;
+        } else {
+            dpArray[i] = INT_MAX;
+            for (int j = 0; j < i; j++) {
+                if (palMatrix[i][j + 1]) {
+                    dpArray[i] = min(dpArray[i], dpArray[j] + 1);
+                }
+            }
+        }
+    }
+    return dpArray[L-1];
+}
+```
+
+##### 132. Palindrome Partitioning II
+
+Well, DP. There are two keys to this question. First, you need to construct this matrix to reduce the complexity of checking every possible palindrome o(n^3) to o(n^2) in this case. Then use a DP array to see how many steps do you need to jump from start to the end (recall the stair jump problem), this costs o(n^2) worst.
+
+```cpp
+int minCut(string s) {
+    int L = s.size();
+    bool palMatrix[L][L];
+    for (int i = 0; i < L; i++) palMatrix[i][i] = true;
+    for (int i = 0; i < L - 1; i++) palMatrix[i + 1][i] = (s[i + 1] == s[i]);
+    for (int j = 2; j < L; j++) {
+        for (int i = 0; i < L - j; i++) {
+            if(s[i] == s[i + j]) {
+                palMatrix[i + j][i] = palMatrix[i + j - 1][i + 1];
+            } else palMatrix[i + j][i] = 0;
+        }
+    }
+
+    int dpArray[L];
+    for (int i = 0; i < L; i++) {
+        if (palMatrix[i][0] != 0) {
+            dpArray[i] = 0;
+        } else {
+            dpArray[i] = INT_MAX;
+            for (int j = 0; j < i; j++) {
+                if (palMatrix[i][j + 1]) {
+                    dpArray[i] = min(dpArray[i], dpArray[j] + 1);
+                }
+            }
+        }
+    }
+    return dpArray[L-1];
+}
+```
+
+##### 416. Partition Equal Subset Sum
+
+Remember to think in term of DP if you're stuck. One key is to realize that if the sum is odd, there is no way a partition can work. Then if it is even, you only need to see if you can sum up to the even number with all the numbers given. This is where the DP comes in: for every number in the DP array, check if you can use some number in the given set to jump from a smaller number in the DP array.
+
+A proper translation of this algorithm:
+
+```cpp
+bool canPartition(vector<int>& nums) {
+    int sum = 0;
+    for (int i = 0; i < nums.size(); i++) sum += nums[i];
+    if (sum & 1) return false;
+
+    int halfSize = sum / 2;
+    vector<bool> dpArray(halfSize + 1, false);
+
+    dpArray[0] = true;
+    for (int num : nums) {
+        for (int i = halfSize; i >= num; i--) {
+            if (dpArray[i - num]) dpArray[i] = true;
+        }
+    }
+    return dpArray[halfSize];
+}
+```
+
+A performance one that uses `bitset` to optimize the space usage.
+
+```cpp
+bool canPartition(vector<int>& nums) {
+    const int MAX_NUM = 100;
+    const int MAX_ARRAY_SIZE = 200;
+    bitset<MAX_NUM * MAX_ARRAY_SIZE / 2 + 1> bits(1);
+    int sum = 0;
+    for (auto n : nums) {
+        sum += n;
+        bits |= bits << n;
+    }
+    return !(sum % 2) && bits[sum / 2];
+}
+```
+
 
 ## Hard
 
