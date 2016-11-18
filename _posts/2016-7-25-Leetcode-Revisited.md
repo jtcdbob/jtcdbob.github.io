@@ -306,6 +306,38 @@ bool isPowerOfTwo(int n) {
 }
 ```
 
+Here is a dirty trick:
+
+```cpp
+bool isPowerOfTwo(int n) {
+    if (n <= 0) return false;
+    return !(n & (n - 1));
+}
+```
+
+So the `!(n & (n - 1))` is unique to power of 2, but for general number `n`, just use `pow(n, m) / num` to see if `num` is a power of `n`. `m` should be chosen so that the large number is right about to overflow `int`.
+
+##### 342. Power of Four
+Well, just do log, I don't care.
+
+```cpp
+bool isPowerOfFour(int num) {
+    if (num == 5 || num < 1) return false;
+    double ans = log(num) / log(4);
+    return round(ans) == ans;
+}
+```
+
+Here is another dirty trick:
+
+```cpp
+bool isPowerOfFour(int num) {
+    return (num > 0) && !(num & (num - 1)) && ((num & 0x55555555) == num);
+}
+```
+
+`0x55555555` is basically `0101 0101 ..... 0101`.
+
 ##### 191. Number of 1 Bits
 Move to the right and count the number of 1's at the rightmost.
 
@@ -481,17 +513,6 @@ bool hasCycle(ListNode *head) {
         if(slow == fast) return true;
     }
     return false;
-}
-```
-
-##### 342. Power of Four
-Well, just do log, I don't care.
-
-```cpp
-bool isPowerOfFour(int num) {
-    if (num == 5 || num < 1) return false;
-    double ans = log(num) / log(4);
-    return round(ans) == ans;
 }
 ```
 
@@ -4227,6 +4248,73 @@ public:
             size++;
         }
     }
+};
+```
+
+Implementation using doubly-linked list. Don't see too much a performance boost here. Some online solution does not manage the memory leak (by not calling `delete`) and gets a speed boost :<. Perhaps a singly linked list can do the job better but I'm not sure how to keep track of the tail. Perhaps reverse the last link and take a node? IDK.
+
+```cpp
+struct Node {
+    Node *prev, *next;
+    int val;
+    Node(int x) : val(x), next(NULL) {};
+};
+
+class LRUCache {
+public:
+    LRUCache(int capacity) {
+        cap = capacity;
+        size = 0;
+        head = tail = NULL;
+    }
+    int get(int key) {
+        if (cache.find(key) == cache.end()) return -1;
+        move_to_front(cache[key].first);
+        return cache[key].second;
+    }
+    void set(int key, int value) {
+        if (cache.find(key) == cache.end()) {
+            Node *node = new Node(key);
+            cache[key] = make_pair(node, value);
+            if (size++ == 0) tail = node;
+            else head->prev = node;
+            node->next = head;
+            head = node;
+            if (size > cap) {
+                cache.erase(tail->val);
+                tail = tail->prev;
+                delete tail->next;
+                tail->next = NULL;
+            }
+        } else {
+            Node *node = cache[key].first;
+            move_to_front(node);
+            cache[key].second = value;
+        }
+    }
+    void move_to_front(Node *node) {
+        if (node != head) {
+            if (node == tail) {
+                tail = tail->prev;
+                if (tail != NULL) tail->next = NULL;
+                if (node->prev != NULL) node->prev->next = NULL;
+            }
+
+            // Remove from the list
+            if (node->prev != NULL) node->prev->next = node->next;
+            if (node->next != NULL) node->next->prev = node->prev;
+
+            // Move to the head
+            node->prev = NULL;
+            node->next = head;
+            head->prev = node;
+            head = node;
+        }
+    }
+private:
+    int size, cap;
+    Node *head, *tail;
+    unordered_map<int, pair<Node*, int> > cache;
 };
 ```
 
