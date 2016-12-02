@@ -4206,6 +4206,221 @@ bool canPartition(vector<int>& nums) {
 }
 ```
 
+##### 139. Word Break
+
+First use string matching algorithms to get the matching indices for each word in the `wordDict`. It can be done by implementing some string matching algorithms, or just use `find` functions provided by C++. Once this is done, a depth-first-search can help find possible path to reach the end.
+
+```cpp
+bool wordBreak(string s, unordered_set<string>& wordDict) {
+    vector<vector<int>> jumpMatrix = makeJumpMatrix(s, wordDict);
+    vector<bool> memorization(s.size(), true);
+    return dfsFindPath(jumpMatrix, 0, s.size(), memorization);
+}
+
+vector<vector<int>> makeJumpMatrix(string& s, unordered_set<string>& wordDict) {
+    vector<vector<int>> jumpMatrix(s.size());
+    for (string word : wordDict) {
+        vector<int> startPos = matchString(s, word);
+        int size = word.size();
+        for (int start : startPos) {
+            jumpMatrix[start].push_back(start + size);
+        }
+    }
+    return jumpMatrix;
+}
+vector<int> matchString(string& s, string& p) {
+    vector<int> startPos;
+    size_t start = s.find(p);
+    while (start!= string::npos) {
+        startPos.push_back(start);
+        start = s.find(p, start + 1);
+    }
+    return startPos;
+}
+bool dfsFindPath(vector<vector<int>>& jumpMatrix, int start, int size, vector<bool>& memorization) {
+    if (start >= size) return true;
+    for (int nextIndex : jumpMatrix[start]) {
+        if (memorization[start] && dfsFindPath(jumpMatrix, nextIndex, size, memorization)) return true;
+    }
+    memorization[start] = false;
+    return false;
+}
+```
+
+##### 98. Validate Binary Search Tree
+
+Basic recursion to traverse the tree and compare the min/max values of the left/right nodes. Not super efficient (in term of implementation and a little bit performance). A smarter way is to do an inorder traversal and add everything to an array. If the tree is valid, the result array should be strictly descending/ascending.
+
+```cpp
+bool isValidBST(TreeNode* root) {
+    if (root == NULL) return true;
+    pair<int, int> extrema;
+    return recursiveVerify(root, extrema);
+}
+bool recursiveVerify(TreeNode* root, pair<int, int>& extrema) {
+    int subMin = root->val, subMax = root->val;
+    if (root->left != NULL) {
+        if (recursiveVerify(root->left, extrema)) {
+            if (extrema.second >= subMin) return false;
+            subMin = extrema.first;
+        } else return false;
+    }
+    if (root->right != NULL) {
+        if (recursiveVerify(root->right, extrema)) {
+            if (extrema.first <= subMax) return false;
+            subMax = extrema.second;
+        } else return false;
+    }
+    extrema.first = subMin;
+    extrema.second = subMax;
+    return true;
+}
+```
+
+##### 71. Simplify Path
+
+Didn't do much, parse the path string and use a deque (doubly-ended linked list) to store final directories.
+
+```cpp
+string simplifyPath(string path) {
+    stringstream ss;
+    ss.str(path);
+    char delim = '/';
+    string item;
+    deque<string> dirList;
+    while (getline(ss, item, delim)) {
+        if (item.empty() || item == ".") continue;
+        else if (item == "..") {
+            if (!dirList.empty()) dirList.pop_back();
+        } else {
+            dirList.push_back(item);
+        }
+    }
+    if (dirList.empty()) return "/";
+    string sPath;
+    for (auto dir = dirList.begin(); dir < dirList.end(); dir++) {
+        sPath += "/" + *dir;
+    }
+    return sPath;
+}
+```
+
+##### 211. Add and Search Word - Data structure design
+
+This is obviously an application of trie. Implement the data structure and then use it to search. When a `.` is encountered, just use recursive methods to iterate through all possibilities in trie.
+
+```cpp
+struct TrieNode {
+    TrieNode *list[26];
+    bool isWord;
+    TrieNode() {
+        memset(list, 0, sizeof(list));
+        isWord = false;
+    }
+};
+class WordDictionary {
+private:
+    TrieNode *trie;
+public:
+    WordDictionary() {
+        trie = new TrieNode();
+    }
+    void addWord(string word) {
+        TrieNode *node = trie;
+        for (char c : word) {
+            if (node->list[c - 'a'] == 0) node->list[c - 'a'] = new TrieNode();
+            node = node->list[c - 'a'];
+        }
+        node->isWord = true;
+    }
+    bool search(string word) {
+        return dfsSearch(word, 0, trie);
+    }
+    bool dfsSearch(string word, int i, TrieNode *node) {
+        while (i < word.size() && word[i] != '.') {
+            if (node->list[word[i] - 'a'] == 0) return false;
+            else node = node->list[word[i] - 'a'];
+            i++;
+        }
+        if (i >= word.size()) {
+            return node->isWord;
+        }
+        for (int j = 0; j < 26; j++) {
+            if (node->list[j] != 0 && dfsSearch(word, i + 1, node->list[j])) return true;
+        }
+        return false;
+    }
+};
+```
+
+##### 3. Longest Substring Without Repeating Characters
+
+Nothing much to say here, just go and find the longest non-repeating-character substring. Use a map to keep track of the last position of the current character and compare it with the length.
+
+```cpp
+int lengthOfLongestSubstring(string s) {
+    int charMap[256];
+    memset(charMap, -1, sizeof(charMap));
+
+    int maxSize = 0, curSize = 0;
+    for (int i = 0; i < s.size(); i++) {
+        curSize = min(curSize + 1, i - charMap[s[i]]);
+        charMap[s[i]] = i;
+        maxSize = max(maxSize, curSize);
+    }
+    return maxSize;
+}
+```
+
+##### 220. Contains Duplicate III
+
+This is definitely an interesting question. Several approaches to solving it.
+
+First, use a tree set. Because the way a tree set stores its elements, it is easy to get a ranged check whether a number exists that is within `[x-t, x+t]`. The ability to binary search is probably one advantage of using BST for set, which is really handy for this question. The time complexity is `o(nlog(k))`. C++ doesn't have the TreeSet class/container, so one has to implement a small one. Doable but not very ideal. (As a matter of fact, I think the `set<>` container is a tree set and it has `lower_bound` and `upper_bound` member functions to deal with the problem we're solving).
+
+The alternative is to store the array by `<val, index>` pair and sort by value. Then it is easy to efficiently compare the values (whether they're in range) and then check the indices. Timewise, it is `o(nlog(n)) + o(n^2)` worst case, although the `o(n^2)` is not really going to be happening. The actual performance seems great through and the implementation doesn't require special data structure.
+
+The last solution is to do a bucket sort on the entire array. The idea is to divide the number range by the value size `t` and then sort the numbers into each bucket. Each time, compare the buckets (which stores indices of the last numbers) nearby to check if the condition is broken. Also note that there won't be more than 1 number in a bucket at one time, otherwise a duplicate has been found. One catch is the number range may overflow, so special data type must be used. This is one efficient implementation from online:
+
+```cpp
+bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+    if (k < 1 || t < 0) return false;
+    int min_num = INT_MAX;
+    int max_num = INT_MIN;
+    for (auto& num: nums) {
+        min_num = std::min(min_num, num);
+        max_num = std::max(max_num, num);
+    }
+    long long bucket_width = static_cast<long long>(t) + 1;
+    int size = (static_cast<long long>(max_num) - static_cast<long long>(min_num)) / bucket_width + 1;
+    int* bucket = new int[size];
+    memset(bucket, -1, sizeof(int) * size);
+    for (int i = 0; i < nums.size(); i++) {
+        int bucket_idx = (static_cast<long long>(nums[i])-min_num) / bucket_width;
+        if (bucket[bucket_idx] >= 0)
+            return true;
+        bucket[bucket_idx] = i;
+        if (bucket_idx >= 1) {
+            int j = bucket[bucket_idx-1];
+            if (j >= 0 && abs(static_cast<long long>(nums[i]) - nums[j]) <= t)
+                return true;
+        }
+        if (bucket_idx < size-1) {
+            int l = bucket[bucket_idx+1];
+            if (l >= 0 && abs(static_cast<long long>(nums[i]) - nums[l]) <= t)
+                return true;
+        }
+        if (i >= k) {
+            bucket[(nums[i-k] - min_num) / bucket_width] = -1;
+        }
+    }
+    return false;
+}
+```
+
+
+
+
 
 ## Hard
 
@@ -4341,22 +4556,25 @@ int calculateMinimumHP(vector<vector<int>>& dungeon) {
 ##### 44. Wildcard Matching (*)
 Iterative algorithm from [online discussion](https://discuss.leetcode.com/topic/21577/my-three-c-solutions-iterative-16ms-dp-180ms-modified-recursion-88ms/2). Whenever a '*' wildcard is encountered, mark the position and backtrack if necessary, otherwise keep going till things break.
 
+There are different ways to solve this problem. DP is an alternative (maybe not as good) [Video](https://www.youtube.com/watch?v=3ZDZ-N0EPV0). Or divide the pattern into smaller chunks based on character `*` and then use string matching algorithms to find matching positions for each chunk. Then see if one can start from the first chunk and find a path all the way to the end.
+
 ```cpp
-bool isMatch(string s, string p) {
-    int iLast = -1, jLast = -1, i, j;
-    for (i = 0, j = 0; i < s.size(); i++, j++) {
+bool isMatch(string t, string p) {
+    int i, j, iStar = -1, jStar = -1;
+    for (i = 0, j = 0; i < t.size();) {
         if (p[j] == '*') {
-            iLast = i--;
-            jLast = j;
+            jStar = j++;
+            iStar = i;
+        } else if (p[j] == '?' || p[j] == t[i]) {
+            j++;
+            i++;
         } else {
-            if (p[j] != '?' && p[j] != s[i]) {
-                if (jLast < 0) return false;
-                i = iLast++;
-                j = jLast;
-            }
+            if (jStar < 0) return false;
+            j = jStar;
+            i = ++iStar;
         }
     }
-    while (j < p.size() && (p[j] == '*')) j++;
+    while (p[j] == '*') j++;
     return j == p.size();
 }
 ```
@@ -4383,5 +4601,398 @@ int findDuplicate(vector<int>& nums) {
         index = tmp;
     }
     return index;
+}
+```
+
+##### Insert Interval
+
+Go through all the intervals (assuming they're in order), find the ones that are in range - their start or end are contained in the inserted interval. Nothing hard about this problem, just have to be careful.
+
+```cpp
+vector<Interval> insert(vector<Interval>& intervals, Interval newInterval) {
+    if (intervals.empty()) return vector<Interval> {newInterval};
+    vector<Interval> res;
+    int i = 0;
+    for (i = 0; i < intervals.size(); i++) {
+        if (intervals[i].start > newInterval.start) break;
+    }
+    for (int j = 0; j < i - 1; j++) {
+        res.push_back(intervals[j]);
+    }
+    int start = newInterval.start, end = newInterval.end;
+    if (i > 0) {
+        if (intervals[i - 1].end >= start) {
+            start = intervals[i - 1].start;
+            if (intervals[i - 1].end > end) return intervals;
+        } else res.push_back(intervals[i - 1]);
+    }
+    int j = i;
+    for (; j < intervals.size(); j++) {
+        if (intervals[j].start > end) break;
+        else if (intervals[j].end > end) {
+            end = intervals[j].end;
+            j++;
+            break;
+        }
+    }
+    res.push_back(Interval(start, end));
+    for (; j < intervals.size(); j++) {
+        res.push_back(intervals[j]);
+    }
+    return res;
+}
+```
+
+##### 56. Merge Intervals
+
+The idea behind this question is still the same as 57. Do a sort before starting the problem and then just progress through to find intervals that have possible overlaps.
+
+```cpp
+vector<Interval> insert(vector<Interval>& intervals, Interval newInterval) {
+    if (intervals.empty()) return vector<Interval> {newInterval};
+    vector<Interval> res;
+    int i = 0;
+    for (i = 0; i < intervals.size(); i++) {
+        if (intervals[i].start > newInterval.start) break;
+    }
+    for (int j = 0; j < i - 1; j++) {
+        res.push_back(intervals[j]);
+    }
+    int start = newInterval.start, end = newInterval.end;
+    if (i > 0) {
+        if (intervals[i - 1].end >= start) {
+            start = intervals[i - 1].start;
+            if (intervals[i - 1].end > end) return intervals;
+        } else res.push_back(intervals[i - 1]);
+    }
+    int j = i;
+    for (; j < intervals.size(); j++) {
+        if (intervals[j].start > end) break;
+        else if (intervals[j].end > end) {
+            end = intervals[j].end;
+            j++;
+            break;
+        }
+    }
+    res.push_back(Interval(start, end));
+    for (; j < intervals.size(); j++) {
+        res.push_back(intervals[j]);
+    }
+    return res;
+}
+```
+
+##### 380. Insert Delete GetRandom O(1)
+
+Use a vector for o(1) random number generation and a map for o(1) insertion and retrival.
+
+```cpp
+class RandomizedSet {
+    vector<int> randArray;
+    unordered_map<int, int> randMap;
+public:
+    /** Initialize your data structure here. */
+    RandomizedSet() {
+    }
+
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    bool insert(int val) {
+        if (randMap.find(val) == randMap.end()) {
+            randMap[val] = randArray.size();
+            randArray.push_back(val);
+            return true;
+        }
+        return false;
+    }
+
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    bool remove(int val) {
+        if (randMap.find(val) != randMap.end()) {
+            randArray[randMap[val]] = randArray.back();
+            randMap[randArray.back()] = randMap[val];
+            randArray.pop_back();
+            randMap.erase(val);
+            return true;
+        }
+        return false;
+    }
+
+    /** Get a random element from the set. */
+    int getRandom() {
+        return randArray[rand() % randArray.size()];
+    }
+};
+```
+
+##### 295. Find Median from Data Stream
+
+Keep a minStack and a maxStack to keep track of the median. I think the implementation could be more efficient than what I have here:
+
+```cpp
+class MedianFinder {
+private:
+    priority_queue<int, vector<int>, greater<int> > minStack;
+    priority_queue<int, vector<int>, less<int> > maxStack;
+    double median;
+public:
+
+    // Adds a number into the data structure.
+    void addNum(int num) {
+        minStack.push(num);
+        if (minStack.size() > maxStack.size()) {
+            maxStack.push(minStack.top());
+            minStack.pop();
+        }
+        while (maxStack.top() > minStack.top()) {
+            minStack.push(maxStack.top());
+            maxStack.push(minStack.top());
+            minStack.pop();
+            maxStack.pop();
+        }
+        if (minStack.size() == maxStack.size()) {
+            median = (minStack.top() + maxStack.top())/2.0;
+        } else {
+            median = maxStack.top();
+        }
+    }
+
+    // Returns the median of current data stream
+    double findMedian() {
+        return median;
+    }
+};
+```
+
+##### 135. Candy
+
+Do two passes, one from left to right and one from right to left. Implementation from online:
+
+```cpp
+int candy(vector<int>& ratings) {
+    vector<int> cnt(ratings.size(), 1);
+    for (int i = 1; i < ratings.size(); i++) {
+        if (ratings[i] > ratings[i - 1]) {
+            cnt[i] = max(cnt[i], cnt[i - 1] + 1);
+        }
+    }
+
+    for (int i = ratings.size() - 2; i >= 0; i--) {
+        if (ratings[i] > ratings[i + 1]) {
+            cnt[i] = max(cnt[i], cnt[i + 1] + 1);
+        }
+    }
+
+    int ret = 0;
+    for (int x : cnt) ret += x;
+    return ret;
+}
+```
+
+##### 336. Palindrome Pairs
+
+There are two possible ways of forming a pair given string s1 and s2:
+
+1. First part of s1 matches s2.reverse and the second part of s1 is a palindrome.  Basically the final string looks like s1--s1.pal--s1.rev.
+2. First part of s1 is a palindrom and second part of s1 matches the reverse of s2. s1.rev--s1.pal--s1.
+
+So basically we store the reverse of all the words in a map. Then we do two tests:
+
+a. Does the first part match anything in the map. If it does, is the second part a palindrome.
+b. Is the first part a palindrome. If it is, does the second part match anything in the map.
+
+Instead of a hashmap, a Trie can be modified to do a better job searching for words.
+
+```cpp
+struct TrieNode {
+    TrieNode* list[26];
+    int wordIndex;
+    TrieNode() {
+        wordIndex = -1;
+        memset(list, 0, sizeof(list));
+    }
+};
+class Solution {
+private:
+    TrieNode* root;
+    void initTrie(vector<string>& words) {
+        root = new TrieNode();
+        for (int i = 0; i < words.size(); i++) {
+            string word = words[i];
+            TrieNode* node = root;
+            for (int j = word.size() - 1; j > -1; j--) {
+                if (node->list[word[j] - 'a'] == nullptr) node->list[word[j] - 'a'] = new TrieNode();
+                node = node->list[word[j] - 'a'];
+            }
+            node->wordIndex = i;
+        }
+    }
+public:
+    vector<vector<int>> palindromePairs(vector<string>& words) {
+        initTrie(words);
+        set<vector<int>> ret;
+        for (int i = 0; i < words.size(); i++) {
+            string word = words[i];
+            TrieNode* node = root;
+            if (node->wordIndex > -1 && node->wordIndex != i && isPal(word, 0, word.size() - 1)) {
+                ret.insert(vector<int> {i, node->wordIndex});
+                ret.insert(vector<int> {node->wordIndex, i});
+            }
+            for (int j = 0; j < word.size(); j++) {
+                if (node->list[word[j] - 'a'] != nullptr) node = node->list[word[j] - 'a'];
+                else break;
+                if (node->wordIndex > -1 && node->wordIndex != i && isPal(word, j + 1, word.size() - 1))
+                    ret.insert(vector<int> {i, node->wordIndex});
+            }
+            for (int j = 0; j < word.size(); j++) {
+                if (isPal(word, 0, j - 1)) {
+                    node = root;
+                    int k = j;
+                    while (k < word.size() && node->list[word[k] - 'a'] != nullptr) node = node->list[word[k++] - 'a'];
+                    if (k >= word.size() && node->wordIndex > -1 && node->wordIndex != i)
+                        ret.insert(vector<int> {node->wordIndex, i});
+                }
+            }
+
+        }
+        vector<vector<int>> retVec;
+        retVec.assign(ret.begin(), ret.end());
+        return retVec;
+    }
+
+    bool isPal(string& word, int i, int j) {
+        while (i < j) {
+            if (word[i++] != word[j--]) return false;
+        }
+        return true;
+    }
+};
+```
+
+##### 239. Sliding Window Maximum
+
+Naive idea is to check in the window and find the maximum, resulting a solution of time complexity o(nk). A slightly more sophisticated one is to use a TreeSet to keep the numbers in order, so the insertion and deletion takes o(log(k)) operations, and the total time cost is o(nlog(k)).
+
+The best solution is to use a deque and eliminate numbers smaller than the latest number, because they will not be maximum in any windows coming afterwards. A deque(doubly-ended queue) is best for this kind of operations. I saw a solution that uses array to improve the access speed. However, that solution uses o(n) space, which is kinda unnecessary, so I used an array of size k and wrap the indices around it. It is essentially a light-weight doubly-ended queue implementation using array.
+
+```cpp
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+    vector<int> ret;
+    if (k == 0) return ret;
+
+    int deque[k];
+    memset(deque, INT_MIN, sizeof(deque));
+    int head = 0, tail = 0;
+    for (int i = 0; i < k; i++) {
+        while (tail > head && nums[i] > deque[tail - 1]) tail--;
+        deque[tail++] = nums[i];
+    }
+    for (int i = k; i < nums.size(); i++) {
+        ret.push_back(deque[head % k]);
+        if (nums[i - k] == deque[head % k]) head = head + 1;
+        while (tail > head && nums[i] > deque[(tail - 1) % k]) tail = tail - 1;
+        deque[(tail++) % k] = nums[i];
+    }
+    ret.push_back(deque[head % k]);
+    return ret;
+}
+```
+
+##### 76. Minimum Window Substring
+
+The same idea of a sliding window applies. Keep track of all the letters in t and their total count. Each time a letter is added to the window and when the total valid letter count reaches the count from `t`, try to minimize the window size. Eventually, all letter can enter and exit the window once at most, so the time complexity is o(n).
+
+```cpp
+string minWindow(string s, string t) {
+    int minSize = INT_MAX;
+    int tSize = t.size();
+    int map[128];
+    memset(map, 0, sizeof(map));
+    string ret;
+    for (char c : t) {
+        map[c]++;
+    }
+    int i = 0;
+    for (int j = 0; j < s.size(); j++) {
+        char c = s[j];
+        if (map[c] > 0) tSize--;
+        map[c]--;
+        if (tSize == 0) {
+            char ci = s[i];
+            while ((map[ci]++) < 0) ci = s[++i];
+            tSize = 1;
+            if (minSize > (j - i + 1)) {
+                minSize = j - i + 1;
+                ret = s.substr(i, j - i + 1);
+            }
+            i++;
+        }
+    }
+    return ret;
+}
+```
+
+##### 72. Edit Distance
+
+Use dynamic programming. The idea is to use a 2D array `dpArray` to keep track of the edit distance of word1 to word2. `dpArray[i][j]` means the edit distance from `word1(0:i-1)` to `word2(0:j-1)`. Each time a letter is added to the end of word2, if it is the same as the next word in word1, it should be the same as `dpArray[i-1][j-1]` (both add a new char). If not, it should be the `min(dpArray[i-1][j-1]+1, dpArray[i-1][j]+1, dpArray[i][j-1]+1)`, which correspond to add a new char to word2, edit a char in word2 and delete a char in word2 (add one to word1). When initializing the array, note that the first element is empty string "", so the initial values are just indices. Original discussion [post](https://discuss.leetcode.com/topic/17639/20ms-detailed-explained-c-solutions-o-n-space/18).
+
+The algorithm uses `o(mn)` time and `o(mn)` space. In term of space, it can be optimized to `o(m)` (assuming `m<n`). The following is my implementation of the said algorithm (linear space):
+
+```cpp
+int minDistance(string word1, string word2) {
+    int M = word1.size(), N = word2.size();
+    int dpArray[M + 1];
+    for (int i = 0; i < M + 1; i++) dpArray[i] = i;
+    for (int j = 0; j < N; j++) {
+        char c = word2[j];
+        int leftUp = dpArray[0]++;
+        for (int i = 0; i < M; i++) {
+            int newVal = 0;
+            if (word1[i] == c) newVal = leftUp;
+            else {
+                newVal = min(leftUp + 1, dpArray[i] + 1);
+                newVal = min(newVal, dpArray[i + 1] + 1);
+            }
+            leftUp = dpArray[i + 1];
+            dpArray[i + 1] = newVal;
+        }
+    }
+    return dpArray[M];
+}
+```
+
+##### 10. Regular Expression Matching
+
+Similar to the wildcard matching. Use a 2D array to do DP and be careful with the condition for `dpArray[i][j]`, especially in the initialization. Some other people's explanations ([1](https://discuss.leetcode.com/topic/17852/9-lines-16ms-c-dp-solutions-with-explanations), [2](https://discuss.leetcode.com/topic/21370/my-4ms-c-dp-solution-another-recursive-version-also-given-72ms)).
+
+```cpp
+bool isMatch(string s, string p) {
+    int M = s.size(), N = p.size();
+    // Initialize
+    bool dpArray[N + 1];
+    memset(dpArray, 0, sizeof(dpArray));
+    dpArray[0] = true;
+    for (int j = 0; j < N; j++) {
+        if (p[j] == '*') {
+            dpArray[j + 1] = dpArray[j - 1]; // Supposedly j makes sense
+        }
+    }
+    // DP
+    for (int i = 0; i < M; i++) {
+        bool last = dpArray[0];
+        dpArray[0] = false;
+        for (int j = 0; j < N; j++) {
+            if (p[j] == '*') {
+                // bool tmp = dpArray[j - 1]; // Skip the last char in p
+                bool tmp = dpArray[j - 1] || (dpArray[j + 1] && (p[j - 1] == '.' || p[j - 1] == s[i])); // or repeat the last one if it matched
+                last = dpArray[j + 1];
+                dpArray[j + 1] = tmp;
+            } else {
+                bool tmp = dpArray[j + 1];
+                dpArray[j + 1] = last &&  (p[j] == '.' || p[j] == s[i]);
+                last = tmp;
+            }
+        }
+    }
+    return dpArray[N];
 }
 ```
