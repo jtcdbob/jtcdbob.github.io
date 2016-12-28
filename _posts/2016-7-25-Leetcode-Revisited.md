@@ -125,6 +125,27 @@ vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
 }
 ```
 
+##### 350. Intersection of Two Arrays II
+Use a map to keep track of the number of each element in nums1 and iterate through nums2 to get the intersected occurance.
+
+```cpp
+vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+    unordered_map<int, int> myMap;
+    vector<int> intersection;
+    for (int num : nums1) {
+        if(myMap.find(num) != myMap.end()) myMap[num]++;
+        else myMap[num] = 1;
+    }
+    for (int num : nums2) {
+        if((myMap.find(num) != myMap.end()) && myMap[num]) {
+            intersection.push_back(num);
+            myMap[num]--;
+        }
+    }
+    return intersection;
+}
+```
+
 ##### 237. Delete Node in a Linked List
 
 Replace the current value with the next value and link it to next next one. Consider edge cases.
@@ -224,24 +245,70 @@ bool containsDuplicate(vector<int>& nums) {
 }
 ```
 
-##### 350. Intersection of Two Arrays II
-Use a map to keep track of the number of each element in nums1 and iterate through nums2 to get the intersected occurance.
+##### 219. Contains Duplicate II
+Keep a hashset for the `k` elements in between and check if there are any duplicates.
 
 ```cpp
-vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
-    unordered_map<int, int> myMap;
-    vector<int> intersection;
-    for (int num : nums1) {
-        if(myMap.find(num) != myMap.end()) myMap[num]++;
-        else myMap[num] = 1;
+bool containsNearbyDuplicate(vector<int>& nums, int k) {
+    unordered_set<int> map;
+    for(int i = 0; i < k && i < nums.size(); i++) {
+        if(map.find(nums[i]) != map.end()) return true;
+        else map.insert(nums[i]);
     }
-    for (int num : nums2) {
-        if((myMap.find(num) != myMap.end()) && myMap[num]) {
-            intersection.push_back(num);
-            myMap[num]--;
+    for(int i = k; i < nums.size(); i++) {
+        if(map.find(nums[i]) != map.end()) return true;
+        else {
+            map.insert(nums[i]);
+            map.erase(nums[i-k]);
         }
     }
-    return intersection;
+    return false;
+}
+```
+
+##### 220. Contains Duplicate III
+
+This is definitely an interesting question. Several approaches to solving it.
+
+First, use a tree set. Because the way a tree set stores its elements, it is easy to get a ranged check whether a number exists that is within `[x-t, x+t]`. The ability to binary search is probably one advantage of using BST for set, which is really handy for this question. The time complexity is `o(nlog(k))`. C++ doesn't have the TreeSet class/container, so one has to implement a small one. Doable but not very ideal. (As a matter of fact, I think the `set<>` container is a tree set and it has `lower_bound` and `upper_bound` member functions to deal with the problem we're solving).
+
+The alternative is to store the array by `<val, index>` pair and sort by value. Then it is easy to efficiently compare the values (whether they're in range) and then check the indices. Timewise, it is `o(nlog(n)) + o(n^2)` worst case, although the `o(n^2)` is not really going to be happening. The actual performance seems great through and the implementation doesn't require special data structure.
+
+The last solution is to do a bucket sort on the entire array. The idea is to divide the number range by the value size `t` and then sort the numbers into each bucket. Each time, compare the buckets (which stores indices of the last numbers) nearby to check if the condition is broken. Also note that there won't be more than 1 number in a bucket at one time, otherwise a duplicate has been found. One catch is the number range may overflow, so special data type must be used. This is one efficient implementation from online:
+
+```cpp
+bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
+    if (k < 1 || t < 0) return false;
+    int min_num = INT_MAX;
+    int max_num = INT_MIN;
+    for (auto& num: nums) {
+        min_num = std::min(min_num, num);
+        max_num = std::max(max_num, num);
+    }
+    long long bucket_width = static_cast<long long>(t) + 1;
+    int size = (static_cast<long long>(max_num) - static_cast<long long>(min_num)) / bucket_width + 1;
+    int* bucket = new int[size];
+    memset(bucket, -1, sizeof(int) * size);
+    for (int i = 0; i < nums.size(); i++) {
+        int bucket_idx = (static_cast<long long>(nums[i])-min_num) / bucket_width;
+        if (bucket[bucket_idx] >= 0)
+            return true;
+        bucket[bucket_idx] = i;
+        if (bucket_idx >= 1) {
+            int j = bucket[bucket_idx-1];
+            if (j >= 0 && abs(static_cast<long long>(nums[i]) - nums[j]) <= t)
+                return true;
+        }
+        if (bucket_idx < size-1) {
+            int l = bucket[bucket_idx+1];
+            if (l >= 0 && abs(static_cast<long long>(nums[i]) - nums[l]) <= t)
+                return true;
+        }
+        if (i >= k) {
+            bucket[(nums[i-k] - min_num) / bucket_width] = -1;
+        }
+    }
+    return false;
 }
 ```
 
@@ -353,7 +420,7 @@ int hammingWeight(uint32_t n) {
 ```
 
 ##### 263. Ugly Number
-Exhause the factor and see if it ends up to be 1.
+Exhaust the factor and see if it ends up to be 1.
 
 ```cpp
 bool isUgly(int num) {
@@ -362,6 +429,84 @@ bool isUgly(int num) {
     while (!(num % 3)) num /= 3;
     while (!(num % 5)) num /= 5;
     return (num == 1);
+}
+```
+
+##### 264. Ugly Number II
+Keep an index array to get the next candidate for the ugly number and generate up to n of them.
+
+```cpp
+int nthUglyNumber(int n) {
+    if (n < 0) return 0;
+    int p1 = 0, p2 = 0, p3 = 0;
+    int k[n];
+    k[0] = 1;
+    for (int i = 1; i < n; i++) {
+        int curMin = min(k[p1] * 2, k[p2] * 3);
+        curMin = min(curMin, k[p3] * 5);
+        k[i] = curMin;
+        while (k[p1] * 2 <= curMin) p1++;
+        while (k[p2] * 3 <= curMin) p2++;
+        while (k[p3] * 5 <= curMin) p3++;
+    }
+    return k[n - 1];
+}
+```
+
+##### 103. Binary Tree Zigzag Level Order Traversal
+Nothing special about this one, use level traversal and get the results. One way is to reverse the target level in the end. Alternatively, play with indices and get the right order at once. The trick to performance is to know that for each level, the number of elements is known beforehand.
+
+```cpp
+vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+    vector<vector<int>> res;
+    queue<TreeNode*> dfsQ;
+    if (root) dfsQ.push(root);
+    bool flag = true;
+    while (!dfsQ.empty()) {
+        int N = dfsQ.size();
+        vector<int> tmp(N, 0);
+        for (int i = 0; i < N; i++) {
+            TreeNode* node = dfsQ.front();
+            dfsQ.pop();
+            if (flag) tmp[i] = node->val;
+            else tmp[N - i - 1] = node->val;
+            if (node->left) dfsQ.push(node->left);
+            if (node->right) dfsQ.push(node->right);
+        }
+        flag = !flag;
+        res.push_back(tmp);
+    }
+    return res;
+}
+```
+
+##### 120. Triangle
+
+Be careful with the indices and it can be done easily. In this case, a queue is used to avoid the trouble to keep track of the indices - the same thing can be done using an array easily.
+
+```cpp
+int minimumTotal(vector<vector<int>>& triangle) {
+    if (triangle.empty()) return 0;
+    queue<int> q;
+    q.push(triangle[0][0]);
+    for (int i = 1; i < triangle.size(); i++) {
+        queue<int> qTmp;
+        int tmp = q.front();
+        for (int j = 0; j < i; j++) {
+            int minStep = min(tmp + triangle[i][j], q.front() + triangle[i][j]);
+            tmp = q.front();
+            q.pop();
+            qTmp.push(minStep);
+        }
+        qTmp.push(tmp + triangle[i].back());
+        q.swap(qTmp);
+    }
+    int curMin = INT_MAX;
+    while (!q.empty()) {
+        curMin = min(curMin, q.front());
+        q.pop();
+    }
+    return curMin;
 }
 ```
 
@@ -498,6 +643,53 @@ int rob(vector<int>& nums) {
 }
 ```
 
+##### 213. House Robber II
+
+It is the same thing as a linear one. Rob each house twice - first time without the first house and second time without the last house. Take the bigger of the two outcomes.
+
+```cpp
+int rob(vector<int>& nums) {
+    if (nums.empty()) return 0;
+    if (nums.size() == 1) return nums[0];
+    if (nums.size() == 2) return max(nums[0], nums[1]);
+    return max(dpRob(nums, 0, nums.size() - 1), dpRob(nums, 1, nums.size()));
+}
+int dpRob(vector<int>& nums, int start, int end) {
+    int llast = nums[start];
+    int last = max(nums[start + 1], llast);
+    for (int i = start + 2; i < end; i++) {
+        int tmp = max(llast + nums[i], last);
+        llast = last;
+        last = tmp;
+    }
+    return last;
+}
+```
+##### 337. House Robber III
+Use dfs to traverse the tree and have a dynamic programming backbone to the algorithm.
+
+```cpp
+int rob(TreeNode* root) {
+    if (root == NULL) return 0;
+    int maxProf1 = rob(root->left) + rob(root->right);
+    int maxProf2 = root->val;
+    maxProf2 += getChildrenSum(root->left);
+    maxProf2 += getChildrenSum(root->right);
+    root->val = max(maxProf1, maxProf2);
+    return root->val;
+}
+
+/* Helper function */
+int getChildrenSum(TreeNode* node) {
+    int sum = 0;
+    if (node != NULL) {
+        if (node->left != NULL) sum += node->left->val;
+        if (node->right != NULL) sum += node->right->val;
+    }
+    return sum;
+}
+```
+
 ##### 141. Linked List Cycle
 Use a fast and a slow node to travel through the list. If there is a cycle, the fast and slow nodes will eventually converge.
 
@@ -576,6 +768,69 @@ int maxProfit(vector<int>& prices) {
         }
     }
     return max(tmpMaxDiff, tmpMax - tmpMin);
+}
+```
+
+##### 122. Best Time to Buy and Sell Stock II
+Sell when the price is at a local maximum.
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    int curMin = prices[0];
+    int curMax = prices[0];
+    int sum = 0;
+    for (int i = 0; i < prices.size(); i++) {
+        if (prices[i] < prices[i - 1]) {
+            sum += curMax - curMin;
+            curMin = prices[i];
+            curMax = prices[i];
+        } else {
+            curMin = min(curMin, prices[i]);
+            curMax = max(curMax, prices[i]);
+        }
+    }
+    sum += curMax - curMin;
+    return sum;
+}
+```
+
+
+##### 309. Best Time to Buy and Sell Stock with Cooldown
+Dynamic programming. Before selling, always compare it to possible outcome when not doing any sale. A naive implementation:
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    if (prices.empty()) return 0;
+    vector<int> dpMaxArrayVal(prices.size(), 0);
+    vector<int> dpMaxArrayHold(prices.size(), 0);
+    dpMaxArrayVal[1] = max(0, prices[1] - prices[0]);
+    for (int i = 2; i < prices.size(); i++) {
+        int curPrice = prices[i];
+        int maxDif = 0;
+        for (int j = 0; j < i; j++) {
+            maxDif = max(maxDif, curPrice - prices[j] + dpMaxArrayHold[j]);
+        }
+        dpMaxArrayVal[i] = max(maxDif, dpMaxArrayVal[i - 1]);
+        dpMaxArrayHold[i] = dpMaxArrayVal[i - 2];
+    }
+    return dpMaxArrayVal.back();
+}
+```
+
+Someone online took another step and used four `int` to deal with the dynamic model and eliminated space and time waste (note this is a linear algorithm):
+
+
+```cpp
+int maxProfit(vector<int>& prices) {
+    int buy(INT_MIN), sell(0), prev_sell(0), prev_buy;
+    for (int price : prices) {
+        prev_buy = buy;
+        buy = max(prev_sell - price, buy);
+        prev_sell = sell;
+        sell = max(prev_buy + price, sell);
+    }
+    return sell;
 }
 ```
 
@@ -661,34 +916,6 @@ void dfsFindPath(TreeNode* node, int sum, vector<vector<int>>& results, vector<i
         if (node->right != NULL) dfsFindPath(node->right, sum, results, tmp);
     }
     tmp.pop_back();
-}
-```
-
-##### 107. Binary Tree Level Order Traversal II
-Nothing much, just plain bfs traversal. Make sure to keep track of the elements in each level. This can be done by using two queues. Alternatively, use a `for` loop each time going into the queue.
-
-```cpp
-vector<vector<int>> levelOrderBottom(TreeNode* root) {
-    vector<vector<int>> results;
-    vector<int> rowResults;
-    queue<TreeNode*> bfsQueue;
-    queue<TreeNode*> tmpQueue;
-    if(root != NULL) bfsQueue.push(root);
-    while (!bfsQueue.empty()) {
-        TreeNode* tmpNode = bfsQueue.front();
-        bfsQueue.pop();
-        rowResults.push_back(tmpNode->val);
-        if(tmpNode->left != NULL) tmpQueue.push(tmpNode->left);
-        if(tmpNode->right != NULL) tmpQueue.push(tmpNode->right);
-        if (bfsQueue.empty() && !tmpQueue.empty()) {
-            swap(bfsQueue, tmpQueue);
-            results.push_back(rowResults);
-            rowResults.clear();
-        }
-    }
-    if(!rowResults.empty()) results.push_back(rowResults);
-    reverse(results.begin(), results.end());
-    return results;
 }
 ```
 
@@ -893,6 +1120,34 @@ vector<vector<int>> levelOrder(TreeNode* root) {
         }
     }
     if(!rowResults.empty()) results.push_back(rowResults);
+    return results;
+}
+```
+
+##### 107. Binary Tree Level Order Traversal II
+Nothing much, just plain bfs traversal. Make sure to keep track of the elements in each level. This can be done by using two queues. Alternatively, use a `for` loop each time going into the queue.
+
+```cpp
+vector<vector<int>> levelOrderBottom(TreeNode* root) {
+    vector<vector<int>> results;
+    vector<int> rowResults;
+    queue<TreeNode*> bfsQueue;
+    queue<TreeNode*> tmpQueue;
+    if(root != NULL) bfsQueue.push(root);
+    while (!bfsQueue.empty()) {
+        TreeNode* tmpNode = bfsQueue.front();
+        bfsQueue.pop();
+        rowResults.push_back(tmpNode->val);
+        if(tmpNode->left != NULL) tmpQueue.push(tmpNode->left);
+        if(tmpNode->right != NULL) tmpQueue.push(tmpNode->right);
+        if (bfsQueue.empty() && !tmpQueue.empty()) {
+            swap(bfsQueue, tmpQueue);
+            results.push_back(rowResults);
+            rowResults.clear();
+        }
+    }
+    if(!rowResults.empty()) results.push_back(rowResults);
+    reverse(results.begin(), results.end());
     return results;
 }
 ```
@@ -1156,27 +1411,6 @@ void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
     while (r2 > -1) {
         nums1[r2] = nums2[r2--];
     }
-}
-```
-
-##### 219. Contains Duplicate II
-Keep a hashset for the `k` elements in between and check if there are any duplicates.
-
-```cpp
-bool containsNearbyDuplicate(vector<int>& nums, int k) {
-    unordered_set<int> map;
-    for(int i = 0; i < k && i < nums.size(); i++) {
-        if(map.find(nums[i]) != map.end()) return true;
-        else map.insert(nums[i]);
-    }
-    for(int i = k; i < nums.size(); i++) {
-        if(map.find(nums[i]) != map.end()) return true;
-        else {
-            map.insert(nums[i]);
-            map.erase(nums[i-k]);
-        }
-    }
-    return false;
 }
 ```
 
@@ -1466,6 +1700,109 @@ int arrangeCoins(int n) {
 
 ## Medium
 
+##### 467. Unique Substrings in Wraparound String
+
+Use an array to keep track of the number of substrings ending at letter `l`. The number is basically the length of the substring with continuous letters. So go through the input string `p` and update the array along the way. In the end, the sum of array elements is the total number of eligible substrings.
+
+```cpp
+int findSubstringInWraproundString(string p) {
+    if (p.empty()) return 0;
+    int letterMap[26];
+    memset(letterMap, 0, sizeof(letterMap));
+    int counter = 0;
+    letterMap[p[0] - 'a'] = ++counter;
+    for (int i = 1; i < p.size(); i++) {
+        int c = p[i] - 'a';
+        if ((p[i] - p[i - 1] + 26) % 26 != 1) counter = 0;
+        if (letterMap[c] < ++counter) letterMap[c] = counter;
+    }
+    int totalCount = 0;
+    for (int i = 0; i < 26; i++) totalCount += letterMap[i];
+    return totalCount;
+}
+```
+
+##### 456. 132 Pattern
+
+It is easier to think about the problem in reverse order. In that case, the problem becomes finding a number that has elements before it that are greater and smaller than that number. Then go through the list and find numbers that have elements that have preceding number that is greater. Then when a smaller number is found, check if there is any previous candidates that this small number can sandwich with the previous largest number. To find the best candidate, use a stack to keep track of the candidates and pop them out as a smaller number is found.
+
+```cpp
+bool find132pattern(vector<int>& nums) {
+    int s3 = INT_MIN;
+    stack<int> st;
+    for (int i = nums.size() - 1; i > -1; i--) {
+        if (nums[i] < s3) return true;
+        while (!st.empty() && nums[i] > st.top()) {
+            s3 = st.top();
+            st.pop();
+        }
+        st.push(nums[i]);
+    }
+    return false;
+}
+```
+
+##### 397. Integer Replacement
+
+A bfs is a straightforward way to deal with this problem:
+
+```cpp
+int integerReplacement(int n) {
+    unordered_set<long> visited;
+    queue<long> bfsQ;
+    bfsQ.push(n);
+    long count = 0;
+    while (!bfsQ.empty()) {
+        int N = bfsQ.size();
+        for (int i = 0; i < N; i++) {
+            long num = bfsQ.front();
+            bfsQ.pop();
+            if (num == 1) {
+                return count;
+            } else if (num % 2) {
+                if (visited.find(num + 1) == visited.end()) bfsQ.push(num + 1);
+                if (visited.find(num - 1) == visited.end()) bfsQ.push(num - 1);
+            } else {
+                if (visited.find(num / 2) == visited.end()) bfsQ.push(num / 2);
+            }
+        }
+        count++;
+    }
+    return count;
+}
+```
+
+Think about this problem using binary representations of the numbers and then observe the behaviour of the numbers as addition and subtractions are performed. Basically it becomes
+
+
+> 1. If `n` is even, halve it.
+> 2. If `n=3` or `n-1` has less 1's than `n+1`, decrement `n`.
+> 3. Otherwise, increment `n`.
+
+
+##### 419. Battleships in a Board
+
+Look for the head of each battleship and ignore everything else.
+
+```cpp
+int countBattleships(vector<vector<char>>& board) {
+    int count = 0;
+    int M = board.size(), N;
+    if (M > 0) N = board[0].size();
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            if (isShip(board, i, j, M, N)) count++;
+        }
+    }
+    return count;
+}
+bool isShip(vector<vector<char>>& board, int i, int j, int M, int N) {
+    if (board[i][j] == '.') return false;
+    if ((i > 0 && board[i - 1][j] == 'X') || (j > 0 && board[i][j - 1] == 'X')) return false;
+    return true;
+}
+```
+
 ##### 381. Insert Delete GetRandom O(1) - Duplicates allowed
 
 Have a vector for quick random number generation and then have map that keeps track of the element position in the vector for quick deletion. When deleting, remove the element by swapping it with the last element. To achieve this, the vector element should also know how to refer back to the map so that swapping two elements in the vector will update its change to the map as well.
@@ -1657,6 +1994,68 @@ int singleNumber(vector<int>& nums) {
 }
 ```
 
+##### 137. Single Number II
+Not very interested, sort.
+
+```cpp
+int singleNumber(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+    int l = 0;
+    while (l < nums.size()) {
+        if (l + 1 < nums.size() && l + 2 < nums.size()) {
+            if (nums[l] != nums[l + 1] || nums[l] != nums[l + 2]) return nums[l];
+        } else return nums[l];
+        l += 3;
+    }
+    return -1;
+}
+```
+
+A "real" solution and a discussion on a [generic solution](https://discuss.leetcode.com/topic/22821/an-general-way-to-handle-all-this-sort-of-questions/2) to all these problems:
+
+```cpp
+int singleNumber(vector<int>& nums) {
+    int ones = 0, twos = 0;
+    for(int i = 0; i < nums.size(); i++){
+        ones = (ones ^ nums[i]) & ~twos;
+        twos = (twos ^ nums[i]) & ~ones;
+    }
+    return ones;
+}
+```
+
+##### 260. Single Number III
+Sort, I'm not patient with bit operations.
+
+```cpp
+vector<int> singleNumber(vector<int>& nums) {
+    vector<int> res;
+    sort(nums.begin(), nums.end());
+    for(int i = 0; i < nums.size();) {
+        if (i + 1 >= nums.size()) res.push_back(nums[i++]);
+        else if (nums[i] != nums[i + 1]) res.push_back(nums[i++]);
+        else i += 2;
+    }
+    return res;
+}
+```
+
+For reference, this is a solution with bit operation:
+
+```cpp
+vector<int> singleNumber(vector<int>& nums) {
+    int aXorb = 0;  // the result of a xor b;
+    for (auto item : nums) aXorb ^= item;
+    int lastBit = (aXorb & (aXorb - 1)) ^ aXorb;  // the last bit that a diffs b
+    int intA = 0, intB = 0;
+    for (auto item : nums) {
+        // based on the last bit, group the items into groupA(include a) and groupB
+        if (item & lastBit) intA = intA ^ item;
+        else intB = intB ^ item;
+    }
+    return vector<int>{intA, intB};
+}
+```
 
 ##### 338. Counting Bits
 Find the pattern. Each \[2^n, 2^(n+1)\] segment is the \[0, 2^n\] plus one.
@@ -1679,30 +2078,6 @@ vector<int> expand(vector<int> oldVec) {
     }
     newVec.insert(newVec.end(), oldVec.begin(), oldVec.end());
     return newVec;
-}
-```
-
-##### 122. Best Time to Buy and Sell Stock II
-Sell when the price is at a local maximum.
-
-```cpp
-int maxProfit(vector<int>& prices) {
-    if (prices.empty()) return 0;
-    int curMin = prices[0];
-    int curMax = prices[0];
-    int sum = 0;
-    for (int i = 0; i < prices.size(); i++) {
-        if (prices[i] < prices[i - 1]) {
-            sum += curMax - curMin;
-            curMin = prices[i];
-            curMax = prices[i];
-        } else {
-            curMin = min(curMin, prices[i]);
-            curMax = max(curMax, prices[i]);
-        }
-    }
-    sum += curMax - curMin;
-    return sum;
 }
 ```
 
@@ -2194,6 +2569,39 @@ int uniquePaths(int m, int n) {
 }
 ```
 
+##### 63. Unique Paths II
+
+Instead of using mathematical results, just use DP/backtracking to solve the problem.
+
+```cpp
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+    int M = obstacleGrid.size();
+    if (M == 0) return 0;
+    int N = obstacleGrid[0].size();
+    if (N == 0) return 0;
+
+    vector<vector<int>> dpGrid(obstacleGrid);
+
+    if (obstacleGrid[0][0] == 1) return 0;
+    else dpGrid[0][0] = 1;
+    for (int j = 1; j < N; j++) {
+        if (obstacleGrid[0][j] == 0) dpGrid[0][j] = dpGrid[0][j - 1];
+        else dpGrid[0][j] = 0;
+    }
+    for (int i = 1; i < M; i++) {
+        if (obstacleGrid[i][0] == 0) dpGrid[i][0] = dpGrid[i - 1][0];
+        else dpGrid[i][0] = 0;
+    }
+    for (int i = 1; i < M; i++) {
+        for (int j = 1; j < N; j++) {
+            if (obstacleGrid[i][j] == 0) dpGrid[i][j] = dpGrid[i - 1][j] + dpGrid[i][j - 1];
+            else dpGrid[i][j] = 0;
+        }
+    }
+    return dpGrid[M - 1][N - 1];
+}
+```
+
 ##### 173. Binary Search Tree Iterator
 This is in-order traversal. Use a stack to do it. The structure will use this algorithm. I believe Morris traversal can be implemented too if wanted.
 
@@ -2533,51 +2941,6 @@ ListNode* oddEvenList(ListNode* head) {
 }
 ```
 
-##### 377. Combination Sum IV
-Use dynamic programming for this problem.
-
-```cpp
-int combinationSum4(vector<int>& nums, int target) {
-    vector<int> dpArray(target + 1, 0);
-    dpArray[0] = 1;
-    sort(nums.begin(), nums.end());
-    for(int i = 1; i < dpArray.size(); i++) {
-        int dpSum = 0;
-        for(int j = 0; j < nums.size(); j++) {
-            if ((i - nums[j]) < 0) break;
-            else dpSum += dpArray[i - nums[j]];
-        }
-        dpArray[i] = dpSum;
-    }
-    return dpArray.back();
-}
-```
-
-##### 337. House Robber III
-Use dfs to traverse the tree and have a dynamic programming backbone to the algorithm.
-
-```cpp
-int rob(TreeNode* root) {
-    if (root == NULL) return 0;
-    int maxProf1 = rob(root->left) + rob(root->right);
-    int maxProf2 = root->val;
-    maxProf2 += getChildrenSum(root->left);
-    maxProf2 += getChildrenSum(root->right);
-    root->val = max(maxProf1, maxProf2);
-    return root->val;
-}
-
-/* Helper function */
-int getChildrenSum(TreeNode* node) {
-    int sum = 0;
-    if (node != NULL) {
-        if (node->left != NULL) sum += node->left->val;
-        if (node->right != NULL) sum += node->right->val;
-    }
-    return sum;
-}
-```
-
 ##### 1. Two Sum
 Classy. Use a map.
 
@@ -2663,39 +3026,6 @@ int threeSumClosest(vector<int>& nums, int target) {
         }
     }
     return closeSum;
-}
-```
-
-##### 260. Single Number III
-Sort, I'm not patient with bit operations.
-
-```cpp
-vector<int> singleNumber(vector<int>& nums) {
-    vector<int> res;
-    sort(nums.begin(), nums.end());
-    for(int i = 0; i < nums.size();) {
-        if (i + 1 >= nums.size()) res.push_back(nums[i++]);
-        else if (nums[i] != nums[i + 1]) res.push_back(nums[i++]);
-        else i += 2;
-    }
-    return res;
-}
-```
-
-For reference, this is a solution with bit operation:
-
-```cpp
-vector<int> singleNumber(vector<int>& nums) {
-    int aXorb = 0;  // the result of a xor b;
-    for (auto item : nums) aXorb ^= item;
-    int lastBit = (aXorb & (aXorb - 1)) ^ aXorb;  // the last bit that a diffs b
-    int intA = 0, intB = 0;
-    for (auto item : nums) {
-        // based on the last bit, group the items into groupA(include a) and groupB
-        if (item & lastBit) intA = intA ^ item;
-        else intB = intB ^ item;
-    }
-    return vector<int>{intA, intB};
 }
 ```
 
@@ -2884,109 +3214,6 @@ string decode(const string& s, int &l) {
     // Update l
     l = ++r;
     return ret;
-}
-```
-
-##### 309. Best Time to Buy and Sell Stock with Cooldown
-Dynamic programming. Before selling, always compare it to possible outcome when not doing any sale. A naive implementation:
-
-```cpp
-int maxProfit(vector<int>& prices) {
-    if (prices.empty()) return 0;
-    vector<int> dpMaxArrayVal(prices.size(), 0);
-    vector<int> dpMaxArrayHold(prices.size(), 0);
-    dpMaxArrayVal[1] = max(0, prices[1] - prices[0]);
-    for (int i = 2; i < prices.size(); i++) {
-        int curPrice = prices[i];
-        int maxDif = 0;
-        for (int j = 0; j < i; j++) {
-            maxDif = max(maxDif, curPrice - prices[j] + dpMaxArrayHold[j]);
-        }
-        dpMaxArrayVal[i] = max(maxDif, dpMaxArrayVal[i - 1]);
-        dpMaxArrayHold[i] = dpMaxArrayVal[i - 2];
-    }
-    return dpMaxArrayVal.back();
-}
-```
-
-Someone online took another step and used four `int` to deal with the dynamic model and eliminated space and time waste (note this is a linear algorithm):
-
-
-```cpp
-int maxProfit(vector<int>& prices) {
-    int buy(INT_MIN), sell(0), prev_sell(0), prev_buy;
-    for (int price : prices) {
-        prev_buy = buy;
-        buy = max(prev_sell - price, buy);
-        prev_sell = sell;
-        sell = max(prev_buy + price, sell);
-    }
-return sell;
-```
-
-##### 216. Combination Sum III
-Use dynamic programming to do this. For n, it can only increase numbers in n-1 results. Make sure to eliminate the duplicate before moving on.
-
-```cpp
-vector<vector<int>> combinationSum3(int k, int n) {
-    // Filter out some impossible inputs
-    const int LOW = k * (k + 1) / 2;
-    if (n < LOW) return vector<vector<int>>{};
-
-    // Initialize DP
-    vector<int> base = vector<int> (k);
-    for (int i = 0; i < k; i++) base[i] = i + 1;
-    vector<vector<int>> collection = {base};
-
-    // DP body
-    for (int i = LOW; i < n; i++) {
-        vector<vector<int>> new_collection;
-        for (vector<int> comb : collection) {
-            for (int j = 0; j < k - 1; j++) {
-                vector<int> tmp = comb;
-                if (tmp[j] + 1 < tmp[j + 1]) {
-                    tmp[j]++;
-                    new_collection.push_back(tmp);
-                }
-            }
-            if (++comb[k - 1] < 10) new_collection.push_back(comb);
-        }
-        // Remove duplicate results
-        swap(collection, new_collection);
-        sort(collection.begin(), collection.end());
-        collection.erase(unique(collection.begin(), collection.end()), collection.end());
-    }
-    return collection;
-}
-```
-
-##### 137. Single Number II
-Not very interested, sort.
-
-```cpp
-int singleNumber(vector<int>& nums) {
-    sort(nums.begin(), nums.end());
-    int l = 0;
-    while (l < nums.size()) {
-        if (l + 1 < nums.size() && l + 2 < nums.size()) {
-            if (nums[l] != nums[l + 1] || nums[l] != nums[l + 2]) return nums[l];
-        } else return nums[l];
-        l += 3;
-    }
-    return -1;
-}
-```
-
-A "real" solution and a discussion on a [generic solution](https://discuss.leetcode.com/topic/22821/an-general-way-to-handle-all-this-sort-of-questions/2) to all these problems:
-
-```cpp
-int singleNumber(vector<int>& nums) {
-    int ones = 0, twos = 0;
-    for(int i = 0; i < nums.size(); i++){
-        ones = (ones ^ nums[i]) & ~twos;
-        twos = (twos ^ nums[i]) & ~ones;
-    }
-    return ones;
 }
 ```
 
@@ -3212,6 +3439,7 @@ int searchInsert(vector<int>& nums, int target) {
 ```
 
 ##### 46. Permutations
+
 Again, call a function to do the dirty work for you. I believe there is a dirtier way to do it by examining numbers from the tail (see the other post for code), but I'm not going over it again.
 
 ```cpp
@@ -3225,7 +3453,23 @@ vector<vector<int>> permute(vector<int>& nums) {
 }
 ```
 
+##### 47. Permutations II
+
+I still called the function to do the dirty work.
+
+```cpp
+vector<vector<int>> permuteUnique(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+    vector<vector<int>> res;
+    do {
+        res.push_back(nums);
+    } while (next_permutation(nums.begin(), nums.end()));
+    return res;
+}
+```
+
 ##### 77. Combinations
+
 The benefit of having a clean function to do the dirty work for you. Just keep track of indices for elements that you want to take to form a combination. This will take the least time.
 
 ```cpp
@@ -3316,6 +3560,97 @@ public:
         }
     }
 };
+```
+
+##### 40. Combination Sum II
+
+Used dynamic programming to solve this question. Could be faster if duplicates can be avoided in the process.
+
+```cpp
+vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+    vector<vector<vector<int>>> dpRes(target + 1, vector<vector<int>> {});
+    dpRes[0].push_back(vector<int> {});
+
+    sort(candidates.begin(), candidates.end());
+    for (int i = 0; i < candidates.size(); i++) {
+        int num = candidates[i];
+        vector<pair<int, vector<int>>> tmp;
+        int k = i, start = 0;
+        while (k > 0 && candidates[k] == candidates[k - 1]) {
+            start += num;
+            k--;
+        }
+        for (int j = start; j < target - num + 1; j++) {
+            for (vector<int> combo : dpRes[j]) {
+                combo.push_back(num);
+                tmp.push_back(make_pair(j + num, combo));
+            }
+        }
+        for (auto elem : tmp) {
+            dpRes[elem.first].push_back(elem.second);
+        }
+    }
+    vector<vector<int>> res = dpRes[target];
+    sort(res.begin(), res.end());
+    res.erase(unique(res.begin(), res.end()), res.end());
+    return res;
+}
+```
+
+##### 216. Combination Sum III
+Use dynamic programming to do this. For n, it can only increase numbers in n-1 results. Make sure to eliminate the duplicate before moving on.
+
+```cpp
+vector<vector<int>> combinationSum3(int k, int n) {
+    // Filter out some impossible inputs
+    const int LOW = k * (k + 1) / 2;
+    if (n < LOW) return vector<vector<int>>{};
+
+    // Initialize DP
+    vector<int> base = vector<int> (k);
+    for (int i = 0; i < k; i++) base[i] = i + 1;
+    vector<vector<int>> collection = {base};
+
+    // DP body
+    for (int i = LOW; i < n; i++) {
+        vector<vector<int>> new_collection;
+        for (vector<int> comb : collection) {
+            for (int j = 0; j < k - 1; j++) {
+                vector<int> tmp = comb;
+                if (tmp[j] + 1 < tmp[j + 1]) {
+                    tmp[j]++;
+                    new_collection.push_back(tmp);
+                }
+            }
+            if (++comb[k - 1] < 10) new_collection.push_back(comb);
+        }
+        // Remove duplicate results
+        swap(collection, new_collection);
+        sort(collection.begin(), collection.end());
+        collection.erase(unique(collection.begin(), collection.end()), collection.end());
+    }
+    return collection;
+}
+```
+
+##### 377. Combination Sum IV
+Use dynamic programming for this problem.
+
+```cpp
+int combinationSum4(vector<int>& nums, int target) {
+    vector<int> dpArray(target + 1, 0);
+    dpArray[0] = 1;
+    sort(nums.begin(), nums.end());
+    for(int i = 1; i < dpArray.size(); i++) {
+        int dpSum = 0;
+        for(int j = 0; j < nums.size(); j++) {
+            if ((i - nums[j]) < 0) break;
+            else dpSum += dpArray[i - nums[j]];
+        }
+        dpArray[i] = dpSum;
+    }
+    return dpArray.back();
+}
 ```
 
 ##### 75. Sort Colors
@@ -3560,7 +3895,6 @@ Not very patient with this.
 Well, don't be. The actual solution is
 
 > Starting from the end of array, find the first element e_1 which is less than its following element. Reverse all elements after e_1 and then find the first element (e_2) which is greater than e_1 from these reversed elements. Swap e_1 and e_2.
-
 
 
 ```cpp
@@ -4372,56 +4706,6 @@ int lengthOfLongestSubstring(string s) {
 }
 ```
 
-##### 220. Contains Duplicate III
-
-This is definitely an interesting question. Several approaches to solving it.
-
-First, use a tree set. Because the way a tree set stores its elements, it is easy to get a ranged check whether a number exists that is within `[x-t, x+t]`. The ability to binary search is probably one advantage of using BST for set, which is really handy for this question. The time complexity is `o(nlog(k))`. C++ doesn't have the TreeSet class/container, so one has to implement a small one. Doable but not very ideal. (As a matter of fact, I think the `set<>` container is a tree set and it has `lower_bound` and `upper_bound` member functions to deal with the problem we're solving).
-
-The alternative is to store the array by `<val, index>` pair and sort by value. Then it is easy to efficiently compare the values (whether they're in range) and then check the indices. Timewise, it is `o(nlog(n)) + o(n^2)` worst case, although the `o(n^2)` is not really going to be happening. The actual performance seems great through and the implementation doesn't require special data structure.
-
-The last solution is to do a bucket sort on the entire array. The idea is to divide the number range by the value size `t` and then sort the numbers into each bucket. Each time, compare the buckets (which stores indices of the last numbers) nearby to check if the condition is broken. Also note that there won't be more than 1 number in a bucket at one time, otherwise a duplicate has been found. One catch is the number range may overflow, so special data type must be used. This is one efficient implementation from online:
-
-```cpp
-bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
-    if (k < 1 || t < 0) return false;
-    int min_num = INT_MAX;
-    int max_num = INT_MIN;
-    for (auto& num: nums) {
-        min_num = std::min(min_num, num);
-        max_num = std::max(max_num, num);
-    }
-    long long bucket_width = static_cast<long long>(t) + 1;
-    int size = (static_cast<long long>(max_num) - static_cast<long long>(min_num)) / bucket_width + 1;
-    int* bucket = new int[size];
-    memset(bucket, -1, sizeof(int) * size);
-    for (int i = 0; i < nums.size(); i++) {
-        int bucket_idx = (static_cast<long long>(nums[i])-min_num) / bucket_width;
-        if (bucket[bucket_idx] >= 0)
-            return true;
-        bucket[bucket_idx] = i;
-        if (bucket_idx >= 1) {
-            int j = bucket[bucket_idx-1];
-            if (j >= 0 && abs(static_cast<long long>(nums[i]) - nums[j]) <= t)
-                return true;
-        }
-        if (bucket_idx < size-1) {
-            int l = bucket[bucket_idx+1];
-            if (l >= 0 && abs(static_cast<long long>(nums[i]) - nums[l]) <= t)
-                return true;
-        }
-        if (i >= k) {
-            bucket[(nums[i-k] - min_num) / bucket_width] = -1;
-        }
-    }
-    return false;
-}
-```
-
-
-
-
-
 ## Hard
 
 ##### 146. LRU Cache
@@ -4994,5 +5278,36 @@ bool isMatch(string s, string p) {
         }
     }
     return dpArray[N];
+}
+```
+
+##### 33. Search in Rotated Sorted Array
+
+Think clearly about the logic to find the element in the array. The array has has strict order in each of the two parts and this property can be used to make a binary search method.
+
+```cpp
+int search(vector<int>& nums, int target) {
+    if (nums.empty()) return -1;
+    if (nums.size() == 1) return (nums[0] == target) ? 0 : -1;
+    if (nums[0] == target) return 0;
+    int l = 0, r = nums.size() - 1;
+    if (nums.size() > 1 && nums[r] == target) return r;
+
+
+    while (l < r - 1) {
+        if (target < nums[l] && target > nums[r]) return -1;
+        int m = floor((l + r) / 2);
+        if (target == nums[m]) return m;
+        else if (target < nums[m]) {
+            if (nums[m] > nums[l] && target > nums[l]) r = m;
+            else if (nums[m] > nums[l] && target < nums[l]) l = m;
+            else r = m;
+        } else { // target > nums[m]
+            if (nums[m] > nums[l]) l = m;
+            else if (nums[m] < nums[r] && target > nums[l]) r = m;
+            else l = m;
+        }
+    }
+    return -1;
 }
 ```
