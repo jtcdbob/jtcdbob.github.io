@@ -27,7 +27,7 @@ Whoever gets 4 for the other part will win.
 
 ```cpp
 bool canWinNim(int n) {
-    return n%4;
+    return n % 4;
 }
 ```
 
@@ -54,7 +54,7 @@ Find a pattern that loops from 1 to 9.
 ```cpp
 int addDigits(int num) {
     if (!num) return 0;
-    else return num%9 ? num%9 : 9;
+    else return num % 9 ? num % 9 : 9;
 }
 ```
 
@@ -106,7 +106,7 @@ void moveZeroes(vector<int>& nums) {
 
 ##### 349. Intersection of Two Arrays
 
-Use a hash table to keep track of nums in nums1 and compare it with nums2.
+Use a hash table to keep track of nums in `nums1` and compare it with `nums2`.
 
 ```cpp
 vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
@@ -126,7 +126,7 @@ vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
 ```
 
 ##### 350. Intersection of Two Arrays II
-Use a map to keep track of the number of each element in nums1 and iterate through nums2 to get the intersected occurance.
+Use a map to keep track of the number of occurance for each element in `nums1` and iterate through `nums2` to get the intersected occurance.
 
 ```cpp
 vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
@@ -183,12 +183,12 @@ Easy number conversion. Base = 26.
 
 ```cpp
 int titleToNumber(string s) {
-    int sum = 0;
-    int N = s.size() - 1;
-    for (int i = N; i > -1; i--) {
-        sum += (s[i] - 'A' + 1) * pow(26, N-i);
+    int num = 0;
+    for (int i = 0; i < s.size(); i++) {
+        num *= 26;
+        num += (s[i] - 'A' + 1);
     }
-    return sum;
+    return num;
 }
 ```
 
@@ -252,7 +252,7 @@ Keep a hashset for the `k` elements in between and check if there are any duplic
 bool containsNearbyDuplicate(vector<int>& nums, int k) {
     unordered_set<int> map;
     for(int i = 0; i < k && i < nums.size(); i++) {
-        if(map.find(nums[i]) != map.end()) return true;
+        if (map.find(nums[i]) != map.end()) return true;
         else map.insert(nums[i]);
     }
     for(int i = k; i < nums.size(); i++) {
@@ -412,7 +412,7 @@ Move to the right and count the number of 1's at the rightmost.
 int hammingWeight(uint32_t n) {
     int counter = 0;
     while(n) {
-        counter += n%2;
+        counter += n % 2;
         n >>= 1;
     }
     return counter;
@@ -420,7 +420,7 @@ int hammingWeight(uint32_t n) {
 ```
 
 ##### 263. Ugly Number
-Exhaust the factor and see if it ends up to be 1.
+Exhaust the factor and see if it ends being 1.
 
 ```cpp
 bool isUgly(int num) {
@@ -665,7 +665,9 @@ int dpRob(vector<int>& nums, int start, int end) {
     return last;
 }
 ```
+
 ##### 337. House Robber III
+
 Use dfs to traverse the tree and have a dynamic programming backbone to the algorithm.
 
 ```cpp
@@ -1700,6 +1702,120 @@ int arrangeCoins(int n) {
 
 ## Medium
 
+##### 2. Add Two Numbers
+
+Use a dummy node to store the results. It should be possible to do it in place (possible optimization).
+
+```cpp
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+    int digit = 0;
+    ListNode* head = new ListNode(0);
+    ListNode* tail = head;
+    while (l1 != NULL && l2 != NULL) {
+        int tmp = digit + l1->val + l2->val;
+        tail->next = new ListNode(tmp % 10);
+        digit = (int) (tmp / 10);
+        tail = tail->next;
+        l1 = l1->next;
+        l2 = l2->next;
+    }
+    while (l1 != NULL) {
+        int tmp = digit + l1->val;
+        tail->next = new ListNode(tmp % 10);
+        digit = (int) (tmp / 10);
+        tail = tail->next;
+        l1 = l1->next;
+    }
+    while (l2 != NULL) {
+        int tmp = digit + l2->val;
+        tail->next = new ListNode(tmp % 10);
+        digit = (int) (tmp / 10);
+        tail = tail->next;
+        l2 = l2->next;
+    }
+    if (digit != 0) tail->next = new ListNode(digit);
+    return head->next;
+}
+```
+
+##### 50. Pow(x, n)
+
+Use the idea of binary search. Think in term of digits and combine the results.
+
+```cpp
+double myPow(double x, int n) {
+    double res = 1;
+    long m = n;
+    if (m < 0) {
+        m = -m;
+        while (m > 0) {
+            res /= m % 2 ? x : 1;
+            x *= x;
+            m >>= 1;
+        }
+    } else {
+        while (m > 0) {
+            res *= m % 2 ? x : 1;
+            x *= x;
+            m >>= 1;
+        }
+    }
+    return res;
+}
+```
+
+##### 61. Rotate List
+
+Use two pointers to get the position of rotation. Then move the pointers around.
+
+```cpp
+ListNode* rotateRight(ListNode* head, int k) {
+    if (head == NULL) return head;
+    int count = 0;
+    ListNode *t = head;
+    while (t != NULL) {
+        t = t->next;
+        count++;
+    }
+    k = k % count;
+    ListNode *l = head, *r = head;
+    for (int i = 0; i < k; i++) {
+        r = r->next;
+    }
+    while (r->next != NULL) {
+        l = l->next;
+        r = r->next;
+    }
+    r->next = head;
+    ListNode* ret = l->next;
+    l->next = NULL;
+    return ret;
+}
+```
+
+##### 189. Rotate Array
+
+Do it in place. Use a temporary varibale and change three elements at a time. When the pointer completes a loop, shift it by one and restart the looping till every element has been moved.
+
+```cpp
+void rotate(vector<int>& nums, int k) {
+    int n = nums.size(), init = 0, count = 0;
+    while (count < n) {
+        int i = init, last = nums[i];
+        do {
+            int j = i + k;
+            if (j >= n) j %= n;
+            int tmp = nums[j];
+            nums[j] = last;
+            last = tmp;
+            i = j;
+            count++;
+        } while (i != init);
+        init++;
+    }
+}
+```
+
 ##### 467. Unique Substrings in Wraparound String
 
 Use an array to keep track of the number of substrings ending at letter `l`. The number is basically the length of the substring with continuous letters. So go through the input string `p` and update the array along the way. In the end, the sum of array elements is the total number of eligible substrings.
@@ -1707,8 +1823,7 @@ Use an array to keep track of the number of substrings ending at letter `l`. The
 ```cpp
 int findSubstringInWraproundString(string p) {
     if (p.empty()) return 0;
-    int letterMap[26];
-    memset(letterMap, 0, sizeof(letterMap));
+    int letterMap[26] = {0};
     int counter = 0;
     letterMap[p[0] - 'a'] = ++counter;
     for (int i = 1; i < p.size(); i++) {

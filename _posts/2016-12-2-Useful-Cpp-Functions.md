@@ -20,3 +20,22 @@ void split(const string &s, char delim, vector<string> &elems) {
     }
 }
 ```
+
+Initialize an integer array with value
+
+```cpp
+int array[n];
+memset(array, value, sizeof(array));
+```
+
+more concisely,
+
+```cpp
+int array[n] = {value};
+```
+
+Initialize a hashset
+
+```cpp
+const unordered_set<int> SET = {1, 2, 3, 4, 5};
+```
